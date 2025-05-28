@@ -18,3 +18,10 @@ id, nome, descricao, preco, quantidade
 FROM produto
 ORDER BY nome
 """ 
+
+OBTER_POR_ID = """
+SELECT 
+id, nome, descricao, preco, quantidade 
+FROM produto
+WHERE id = ?
+""" 
