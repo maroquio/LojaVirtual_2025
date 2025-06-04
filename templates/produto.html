@@ -1,23 +1,36 @@
 {% extends "base.html" %}
 {% block conteudo %}
-<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-3">
+<div class="">
     <div class="col">
         <div class="card h-100">
-            <img class="card-img-top" src="https://picsum.photos/200/200?random={{produto.id}}" alt="Title" />
             <div class="card-body">
-                <h4 class="card-title">{{produto.nome}}</h4>
-                <p class="card-text">
-                    {{produto.descricao}}
-                </p>
-                <p class="card-text">
-                    R$ {{produto.preco}}
-                </p>
+                <div class="row">
+                    <div class="col-4">
+                        <img class="img-thumbnail" src="https://picsum.photos/600/600?random={{produto.id}}" alt="Title" />
+                    </div>
+                    <div class="col-8">
+                        <h2 class="card-title">{{produto.nome}}</h2>
+                        <p class="card-text lead">
+                            {{produto.descricao}}
+                        </p>
+                        <p class="card-text text-danger fs-3">
+                            R$ {{produto.preco}}
+                        </p>
+                        <p class="card-text text-secondary">
+                            Restam apenas {{produto.quantidade}} unidades em estoque.
+                        </p>
+                        <p>
+                            <a href="" class="btn btn-lg btn-danger">
+                                Adicionar ao Carrinho</a>
+                        </p>
+                    </div>
+                </div>                
             </div>
-            <div class="card-footer p-2">
-                <a class="btn btn-danger w-100" href="/">
+            <!-- <div class="card-footer p-2">
+                <a class="btn btn-secondary w-100" href="/">
                     Voltar para Página Principal
                 </a>
-            </div>
+            </div> -->
         </div>
     </div>
 </div>
