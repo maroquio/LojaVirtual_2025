@@ -16,16 +16,27 @@
                 <h1>Loja Virtual</h1>
                 <div class="nav">
                     <a class="nav-link text-white" href="/">Home</a>
-                    <a class="nav-link text-white" href="/produtos">Produtos</a>
-                    <a class="nav-link text-white" href="/clientes">Clientes</a>
-                    <a class="nav-link text-white" href="/formas_pagamento">Formas de Pagamento</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown">
+                            Administrar
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="/admin/produtos">Produtos</a>
+                            </li>
+                            <li><a class="dropdown-item" href="/admin/clientes">Clientes</a>
+                            </li>
+                            <li><a class="dropdown-item" href="/admin/formas_pagamento">Formas de Pagamento</a>
+                            </li>
+                        </ul>
+                    </li>
                 </div>
             </div>
+        </div>
         </div>
     </header>
     <main class="container my-3">
         {% block conteudo %}
-        {% endblock %}        
+        {% endblock %}
     </main>
     <footer class="text-bg-dark p-3 text-center mt-auto">
         <p class="m-0">Copyright &copy; 2025 Loja Virtual</p>
