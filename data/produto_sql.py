@@ -25,3 +25,7 @@ id, nome, descricao, preco, quantidade
 FROM produto
 WHERE id = ?
 """ 
+
+EXCLUIR_POR_ID = """
+DELETE FROM produto WHERE id = ?
+"""

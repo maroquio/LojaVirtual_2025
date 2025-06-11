@@ -26,17 +26,17 @@ async def get_root():
     return response
 
 
-@app.get("/admin/produtos")
-async def get_produtos():
-    produtos = produto_repo.obter_todos()
-    response = templates.TemplateResponse("produtos.html", {"request": {}, "produtos": produtos})
-    return response
-
-
 @app.get("/produtos/{id}")
 async def get_produto_por_id(id: int):
     produto = produto_repo.obter_por_id(id)
     response = templates.TemplateResponse("produto.html", {"request": {}, "produto": produto})
+    return response
+
+
+@app.get("/admin/produtos")
+async def get_produtos():
+    produtos = produto_repo.obter_todos()
+    response = templates.TemplateResponse("produtos.html", {"request": {}, "produtos": produtos})
     return response
 
 
@@ -58,7 +58,13 @@ async def post_produto_cadastrar(
     if id_produto == None:
         raise Exception("Erro ao inserir produto.")
     else:
-        return RedirectResponse("/produtos", status_code=303)
+        return RedirectResponse("/admin/produtos", status_code=303)
+
+
+@app.get("/admin/produtos/excluir/{id}")
+async def get_excluir_produto(id: int):
+    if produto_repo.excluir_por_id(id):
+        return RedirectResponse("/admin/produtos", status_code=303)
 
 
 @app.get("/admin/clientes")
