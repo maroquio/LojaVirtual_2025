@@ -10,18 +10,28 @@
                 <label for="nome">Nome do Produto</label>
             </div>
             <div class="form-floating mb-3">
-                <input type="text" class="form-control" id="descricao" name="descricao" placeholder="Descrição do Produto" required>
+                <textarea type="text" class="form-control" id="descricao" name="descricao"
+                    placeholder="Descrição do Produto" required style="height: 100px"></textarea>
                 <label for="descricao">Descrição do Produto</label>
             </div>
-            <div class="form-floating mb-3">
-                <input type="number" class="form-control" id="preco" name="preco" placeholder="Preço do Produto" required>
-                <label for="preco">Preço do Produto</label>
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-floating mb-3">
+                        <input type="number" class="form-control" id="preco" name="preco" placeholder="Preço do Produto"
+                            required>
+                        <label for="preco">Preço do Produto</label>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-floating mb-3">
+                        <input type="number" class="form-control" id="quantidade" name="quantidade"
+                            placeholder="Quantidade em Estoque" required>
+                        <label for="quantidade">Quantidade em Estoque</label>
+                    </div>
+                </div>
             </div>
-            <div class="form-floating mb-3">
-                <input type="number" class="form-control" id="quantidade" name="quantidade" placeholder="Quantidade em Estoque" required>
-                <label for="quantidade">Quantidade em Estoque</label>
-            </div>
-            <button type="submit" class="btn btn-primary">Cadastrar Produto</button>
+            <button type="submit" class="btn btn-primary me-2">Cadastrar Produto</button>
+            <a href="/admin/produtos" class="btn btn-secondary">Cancelar Cadastro</a>
         </form>
     </div>
 </div>

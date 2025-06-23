@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% block conteudo %}
-<h1>Produtos</h1>
+<div class="d-flex align-items-center justify-content-between">
+    <h1>Produtos</h1>
+    <a href="/admin/produtos/cadastrar" class="btn btn-primary">Novo Produto</a>
+</div>
 <hr>
 <table class="table table-striped">
     <thead>
@@ -10,6 +13,7 @@
             <th>Descrição</th>
             <th>Preço</th>
             <th>Quantidade</th>
+            <th class="text-center">Ações</th>
         </tr>
     </thead>
     <tbody>
@@ -20,6 +24,7 @@
             <td>{{produto.descricao}}</td>
             <td>{{produto.preco}}</td>
             <td>{{produto.quantidade}}</td>
+            <td class="text-center"><a href="/admin/produtos/excluir/{{produto.id}}" class="btn btn-danger btn-sm"><i class="bi-trash"></i></a></td>
         </tr>
         {% endfor %}
     </tbody>

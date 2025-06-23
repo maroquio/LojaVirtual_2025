@@ -46,3 +46,10 @@ def obter_por_id(id: int) -> Optional[Produto]:
             preco=row["preco"], 
             quantidade=row["quantidade"])
         return produto
+    
+
+def excluir_por_id(id: int) -> bool:
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute(EXCLUIR_POR_ID, (id,))
+        return (cursor.rowcount > 0)
