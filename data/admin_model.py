@@ -4,6 +4,5 @@ from data.usuario_model import Usuario
 
 
 @dataclass
-class Cliente(Usuario):
-    cpf: str
-    telefone: str
+class Admin(Usuario):
+    master: bool

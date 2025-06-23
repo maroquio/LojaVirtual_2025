@@ -1,7 +1,7 @@
 from typing import Optional
 from data import usuario_repo
-from data.cliente_model import Cliente
-from data.cliente_sql import *
+from data.admin_model import Admin
+from data.admin_sql import *
 from data.usuario_model import Usuario
 from data.util import get_connection
 
@@ -11,32 +11,30 @@ def criar_tabela() -> bool:
         cursor.execute(CRIAR_TABELA)
         return cursor.rowcount > 0
 
-def inserir(cliente: Cliente) -> Optional[int]:
+def inserir(admin: Admin) -> Optional[int]:
     with get_connection() as conn:
         cursor = conn.cursor()
         usuario = Usuario(0, 
-            cliente.nome, 
-            cliente.email, 
-            cliente.senha)
+            admin.nome, 
+            admin.email, 
+            admin.senha)
         id_usuario = usuario_repo.inserir(usuario, cursor)
         cursor.execute(INSERIR, (
             id_usuario,
-            cliente.cpf,
-            cliente.telefone))
+            admin.master))
         return id_usuario
     
-def alterar(cliente: Cliente) -> bool:
+def alterar(admin: Admin) -> bool:
     with get_connection() as conn:
         cursor = conn.cursor()
-        usuario = Usuario(cliente.id, 
-            cliente.nome, 
-            cliente.email, 
-            cliente.senha)
+        usuario = Usuario(admin.id, 
+            admin.nome, 
+            admin.email, 
+            admin.senha)
         usuario_repo.alterar(usuario, cursor)
         cursor.execute(ALTERAR, (
-            cliente.cpf,
-            cliente.telefone,
-            cliente.id))
+            admin.master,
+            admin.id))
         return (cursor.rowcount > 0)
     
 def excluir(id: int) -> bool:
@@ -46,32 +44,30 @@ def excluir(id: int) -> bool:
         usuario_repo.excluir(id, cursor)
         return (cursor.rowcount > 0)
 
-def obter_por_id(id: int) -> Optional[Cliente]:
+def obter_por_id(id: int) -> Optional[Admin]:
     with get_connection() as conn:
         cursor = conn.cursor()
         cursor.execute(OBTER_POR_ID, (id,))
         row = cursor.fetchone()
-        cliente = Cliente(
+        admin = Admin(
             id=row["id"],
-            nome=row["nome"],
-            cpf=row["cpf"],
+            nome=row["nome"],            
             email=row["email"],
-            telefone=row["telefone"],
-            senha=row["senha"])
-        return cliente
+            senha=row["senha"],
+            master=row["master"])
+        return admin
     
-def obter_todos() -> list[Cliente]:
+def obter_todos() -> list[Admin]:
     with get_connection() as conn:
         cursor = conn.cursor()
         cursor.execute(OBTER_TODOS)
         rows = cursor.fetchall()
-        clientes = [
-            Cliente(
-                id=row["id"], 
-                nome=row["nome"], 
-                cpf=row["cpf"],
+        admins = [
+            Admin(
+                id=row["id"],
+                nome=row["nome"],            
                 email=row["email"],
-                telefone=row["telefone"],
-                senha=row["senha"]) 
+                senha=row["senha"],
+                master=row["master"]) 
                 for row in rows]
-        return clientes
+        return admins
