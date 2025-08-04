@@ -4,7 +4,7 @@ id INTEGER PRIMARY KEY,
 cpf TEXT NOT NULL,
 telefone TEXT NOT NULL,
 FOREIGN KEY (id) REFERENCES usuario(id)
-"""
+);"""
 
 INSERIR = """
 INSERT INTO cliente (cpf, telefone) 

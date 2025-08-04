@@ -1,6 +1,6 @@
 from typing import Any, Optional
-from data.usuario_model import Usuario
-from data.usuario_sql import *
+from model.usuario_model import Usuario
+from sql.usuario_sql import *
 from data.util import get_connection
 
 def criar_tabela() -> bool:
