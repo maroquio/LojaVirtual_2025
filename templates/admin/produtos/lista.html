@@ -24,7 +24,9 @@
             <td>{{produto.descricao}}</td>
             <td>{{produto.preco}}</td>
             <td>{{produto.quantidade}}</td>
-            <td class="text-center"><a href="/admin/produtos/excluir/{{produto.id}}" class="btn btn-danger btn-sm"><i class="bi-trash"></i></a></td>
+            <td class="text-center">
+                <a href="/admin/produtos/excluir/{{produto.id}}" class="btn btn-danger btn-sm"><i class="bi-trash"></i></a>
+            </td>
         </tr>
         {% endfor %}
     </tbody>

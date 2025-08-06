@@ -24,7 +24,7 @@ async def get_produto_por_id(request: Request, id: int):
 
 @router.get("/admin/produtos/cadastrar")
 async def get_produto_cadastrar(request: Request):
-    response = templates.TemplateResponse("admin/produtos/cadastrar.html", {"request": request})
+    response = templates.TemplateResponse("admin/produtos/cadastro.html", {"request": request})
     return response
 
 
