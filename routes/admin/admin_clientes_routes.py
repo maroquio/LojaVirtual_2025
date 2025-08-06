@@ -11,5 +11,5 @@ router = APIRouter()
 @router.get("/admin/clientes")
 async def get_clientes():
     clientes = cliente_repo.obter_todos()
-    response = templates.TemplateResponse("clientes.html", {"request": {}, "clientes": clientes})
+    response = templates.TemplateResponse("admin/clientes.html", {"request": {}, "clientes": clientes})
     return response

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Form
+from fastapi import APIRouter, Form, Request
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 
@@ -9,26 +9,26 @@ templates = Jinja2Templates(directory="templates")
 router = APIRouter()
 
 @router.get("/admin/produtos")
-async def get_produtos():
+async def get_produtos(request: Request):
     produtos = produto_repo.obter_todos()
-    response = templates.TemplateResponse("produtos.html", {"request": {}, "produtos": produtos})
+    response = templates.TemplateResponse("admin/produtos.html", {"request": request, "produtos": produtos})
     return response
 
 
-@router.get("/admin/produtos/{id}")
-async def get_produto_por_id(id: int):
+@router.get("/admin/produtos/porid/{id}")
+async def get_produto_por_id(request: Request, id: int):
     produto = produto_repo.obter_por_id(id)
-    response = templates.TemplateResponse("produto.html", {"request": {}, "produto": produto})
+    response = templates.TemplateResponse("admin/produto.html", {"request": request, "produto": produto})
     return response
 
 
 @router.get("/admin/produtos/cadastrar")
-async def get_produto_cadastrar():
-    response = templates.TemplateResponse("cadastrar_produto.html", {"request": {}})
+async def get_produto_cadastrar(request: Request):
+    response = templates.TemplateResponse("admin/cadastrar_produto.html", {"request": request})
     return response
 
 
-@router.post("/admin/produtos/cadastrar")
+@router.post("/admin/produtos/cadastrar", )
 async def post_produto_cadastrar(
     nome: str = Form(...),
     descricao: str = Form(...),
@@ -44,6 +44,6 @@ async def post_produto_cadastrar(
 
 
 @router.get("/admin/produtos/excluir/{id}")
-async def get_excluir_produto(id: int):
+async def get_excluir_produto(request: Request, id: int):
     if produto_repo.excluir_por_id(id):
         return RedirectResponse("/admin/produtos", status_code=303)

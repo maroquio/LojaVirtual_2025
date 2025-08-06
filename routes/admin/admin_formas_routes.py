@@ -11,5 +11,5 @@ router = APIRouter()
 @router.get("/admin/formas_pagamento")
 async def get_formas_pagamento():
     formas_pagamento = forma_pagamento_repo.obter_todas()
-    response = templates.TemplateResponse("formas_pagamento.html", {"request": {}, "formas_pagamento": formas_pagamento})
+    response = templates.TemplateResponse("admin/formas_pagamento.html", {"request": {}, "formas_pagamento": formas_pagamento})
     return response
