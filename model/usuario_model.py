@@ -2,12 +2,8 @@ from dataclasses import dataclass
 
 
 @dataclass
-class Cliente:
+class Usuario:
     id: int
     nome: str
-    cpf: str
     email: str
-    telefone: str
     senha: str
-
-    

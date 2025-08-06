@@ -1,6 +1,6 @@
 from typing import Optional
-from data.produto_model import Produto
-from data.produto_sql import *
+from model.produto_model import Produto
+from sql.produto_sql import *
 from data.util import get_connection
 
 def criar_tabela() -> bool:

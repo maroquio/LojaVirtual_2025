@@ -5,6 +5,10 @@ import uvicorn
 from data import produto_repo
 from data import cliente_repo
 from data import forma_pagamento_repo
+from data import produto_repo, usuario_repo, cliente_repo, forma_pagamento_repo
+from routes.admin.categoria_routes import router as admin_categoria_router
+from routes.admin.produto_routes import router as admin_produto_router
+from routes import public_router as public_router
 
 from routes.admin.admin_produto_routes import router as admin_produtos_router
 from routes.admin.admin_cliente_routes import router as admin_clientes_router
@@ -14,6 +18,7 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 produto_repo.criar_tabela()
+usuario_repo.criar_tabela()
 cliente_repo.criar_tabela()
 forma_pagamento_repo.criar_tabela()
 
