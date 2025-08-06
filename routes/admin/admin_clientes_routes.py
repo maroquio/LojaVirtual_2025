@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Form
 from fastapi.templating import Jinja2Templates
 
-from data import cliente_repo
+from repo import cliente_repo
 
 
 templates = Jinja2Templates(directory="templates")

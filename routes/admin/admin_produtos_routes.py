@@ -2,7 +2,7 @@ from fastapi import APIRouter, Form
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 
-from data import produto_repo
+from repo import produto_repo
 from model.produto_model import Produto
 
 templates = Jinja2Templates(directory="templates")

@@ -1,5 +1,5 @@
 from typing import Optional
-from data import usuario_repo
+from repo import usuario_repo
 from model.cliente_model import Cliente
 from sql.cliente_sql import *
 from model.usuario_model import Usuario
