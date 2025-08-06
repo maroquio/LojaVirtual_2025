@@ -11,20 +11,20 @@ router = APIRouter()
 @router.get("/admin/produtos")
 async def get_produtos(request: Request):
     produtos = produto_repo.obter_todos()
-    response = templates.TemplateResponse("admin/produtos.html", {"request": request, "produtos": produtos})
+    response = templates.TemplateResponse("admin/produtos/lista.html", {"request": request, "produtos": produtos})
     return response
 
 
 @router.get("/admin/produtos/porid/{id}")
 async def get_produto_por_id(request: Request, id: int):
     produto = produto_repo.obter_por_id(id)
-    response = templates.TemplateResponse("admin/produto.html", {"request": request, "produto": produto})
+    response = templates.TemplateResponse("admin/produtos/detalhes.html", {"request": request, "produto": produto})
     return response
 
 
 @router.get("/admin/produtos/cadastrar")
 async def get_produto_cadastrar(request: Request):
-    response = templates.TemplateResponse("admin/cadastrar_produto.html", {"request": request})
+    response = templates.TemplateResponse("admin/produtos/cadastrar.html", {"request": request})
     return response
 
 
