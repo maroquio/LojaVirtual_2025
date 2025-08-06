@@ -3,7 +3,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from data import produto_repo
-from data.produto_model import Produto
+from model.produto_model import Produto
 
 templates = Jinja2Templates(directory="templates")
 router = APIRouter()
