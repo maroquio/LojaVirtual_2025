@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from fastapi.templating import Jinja2Templates
-from data import produto_repo
+from repo import produto_repo
 
 
 router = APIRouter()

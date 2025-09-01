@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<div class="card">
+    <div class="card-body">
+        <h2>Alteração de Categoria</h2>
+        <hr>
+        <form action="/admin/categorias/alterar" method="post">
+            <input type="hidden" name="id" value="{{ categoria.id }}">
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="nome" name="nome" placeholder="Nome da Categoria" required value="{{ categoria.nome }}">
+                <label for="nome">Nome da Categoria</label>
+            </div>
+            <button type="submit" class="btn btn-primary me-2">Alterar Categoria</button>
+            <a href="/admin/categorias" class="btn btn-secondary">Cancelar Alteração</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

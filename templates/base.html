@@ -36,6 +36,11 @@
         </div>
     </header>
     <main class="container my-3">
+        {% if mensagem %}
+        <div class="alert alert-success" role="alert">
+            {{ mensagem }}
+        </div>
+        {% endif %}
         {% block conteudo %}
         {% endblock %}
     </main>

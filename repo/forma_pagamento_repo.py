@@ -1,6 +1,6 @@
 from typing import Optional
-from data.forma_pagamento_model import FormaPagamento
-from data.forma_pagamento_sql import *
+from model.forma_pagamento_model import FormaPagamento
+from sql.forma_pagamento_sql import *
 from data.util import get_connection
 
 

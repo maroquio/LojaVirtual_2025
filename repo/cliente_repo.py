@@ -1,8 +1,8 @@
 from typing import Optional
-from data import usuario_repo
-from data.cliente_model import Cliente
-from data.cliente_sql import *
-from data.usuario_model import Usuario
+from repo import usuario_repo
+from model.cliente_model import Cliente
+from sql.cliente_sql import *
+from model.usuario_model import Usuario
 from data.util import get_connection
 
 def criar_tabela() -> bool:

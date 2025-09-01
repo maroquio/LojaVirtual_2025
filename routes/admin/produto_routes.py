@@ -19,7 +19,7 @@ async def get_produto_por_id(id: int):
 @router.get("/admin/produtos")
 async def get_produtos():
     produtos = produto_repo.obter_todos()
-    response = templates.TemplateResponse("admin/listar_produtos.html", {"request": {}, "produtos": produtos})
+    response = templates.TemplateResponse("admin/produtos.html", {"request": {}, "produtos": produtos})
     return response
 
 
