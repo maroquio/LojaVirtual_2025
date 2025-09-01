@@ -1,35 +1,41 @@
-from fastapi import APIRouter, Form
+from fastapi import APIRouter, Form, Request
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 
-from model.produto_model import Produto
 from repo import produto_repo
+from model.produto_model import Produto
 
-
-router = APIRouter()
 templates = Jinja2Templates(directory="templates")
+router = APIRouter()
 
-@router.get("/produtos/{id}")
-async def get_produto_por_id(id: int):
-    produto = produto_repo.obter_por_id(id)
-    response = templates.TemplateResponse("admin/produto.html", {"request": {}, "produto": produto})
+@router.get("/admin/produtos")
+async def get_produtos(request: Request):
+    produtos = produto_repo.obter_todos()
+    response = templates.TemplateResponse("admin/produtos/lista.html", {"request": request, "produtos": produtos})
     return response
 
 
+<<<<<<< HEAD:routes/admin/produto_routes.py
 @router.get("/admin/produtos")
 async def get_produtos():
     produtos = produto_repo.obter_todos()
     response = templates.TemplateResponse("admin/produtos.html", {"request": {}, "produtos": produtos})
+=======
+@router.get("/admin/produtos/porid/{id}")
+async def get_produto_por_id(request: Request, id: int):
+    produto = produto_repo.obter_por_id(id)
+    response = templates.TemplateResponse("admin/produtos/detalhes.html", {"request": request, "produto": produto})
+>>>>>>> a88a570dda564dde33dac25aa38e519f9ab64665:routes/admin/admin_produtos_routes.py
     return response
 
 
 @router.get("/admin/produtos/cadastrar")
-async def get_produto_cadastrar():
-    response = templates.TemplateResponse("admin/cadastrar_produto.html", {"request": {}})
+async def get_produto_cadastrar(request: Request):
+    response = templates.TemplateResponse("admin/produtos/cadastro.html", {"request": request})
     return response
 
 
-@router.post("/admin/produtos/cadastrar")
+@router.post("/admin/produtos/cadastrar", )
 async def post_produto_cadastrar(
     nome: str = Form(...),
     descricao: str = Form(...),
@@ -45,6 +51,6 @@ async def post_produto_cadastrar(
 
 
 @router.get("/admin/produtos/excluir/{id}")
-async def get_excluir_produto(id: int):
+async def get_excluir_produto(request: Request, id: int):
     if produto_repo.excluir_por_id(id):
         return RedirectResponse("/admin/produtos", status_code=303)

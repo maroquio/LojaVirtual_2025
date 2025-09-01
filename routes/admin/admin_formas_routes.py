@@ -1,10 +1,12 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Form
 from fastapi.templating import Jinja2Templates
+
 from repo import forma_pagamento_repo
 
 
-router = APIRouter()
 templates = Jinja2Templates(directory="templates")
+router = APIRouter()
+
 
 @router.get("/admin/formas_pagamento")
 async def get_formas_pagamento():
