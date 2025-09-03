@@ -33,6 +33,7 @@ async def get_cadastro(request: Request, usuario_logado: dict = None):
 @router.post("/cadastro")
 @requer_autenticacao(["admin"])
 async def post_cadastro(
+    request: Request,
     nome: str = Form(...),
     email: str = Form(...),
     senha: str = Form(...),
@@ -82,6 +83,7 @@ async def get_alterar(request: Request, id: int, usuario_logado: dict = None):
 @router.post("/alterar/{id:int}")
 @requer_autenticacao(["admin"])
 async def post_alterar(
+    request: Request,
     id: int,
     nome: str = Form(...),
     email: str = Form(...),
@@ -145,7 +147,10 @@ async def get_excluir(request: Request, id: int, usuario_logado: dict = None):
 
 @router.post("/excluir/{id:int}")
 @requer_autenticacao(["admin"])
-async def post_excluir(id: int, usuario_logado: dict = None):
+async def post_excluir(
+    request: Request, 
+    id: int, 
+    usuario_logado: dict = None):
     # Não permitir auto-exclusão
     if id == usuario_logado['id']:
         return RedirectResponse(

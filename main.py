@@ -18,7 +18,7 @@ from routes.admin_clientes_routes import router as admin_clientes_router
 from routes.admin_formas_routes import router as admin_formas_pagamento_router
 from routes.auth_routes import router as auth_router
 from routes.perfil_routes import router as perfil_router
-from routes.admin.admin_usuarios_routes import router as admin_usuarios_router
+from routes.admin_usuarios_routes import router as admin_usuarios_router
 
 app = FastAPI()
 
