@@ -6,10 +6,10 @@
 </div>
 <hr>
 {% if categorias %}
-<table class="table table-striped">
+<table class="table table-striped table-admin center-column-1">
     <thead>
         <tr>
-            <th>Id</th>
+            <th>Código</th>
             <th>Nome</th>
             <th class="text-center">Ações</th>
         </tr>
@@ -17,7 +17,7 @@
     <tbody>
         {% for categoria in categorias %}
         <tr>
-            <td>{{categoria.id}}</td>
+            <td>{{"{:06d}".format(categoria.id)}}</td>
             <td>{{categoria.nome}}</td>
             <td class="text-center">
                 <a href="/admin/categorias/alterar/{{categoria.id}}" class="btn btn-primary btn-sm"><i class="bi-pencil"></i></a>

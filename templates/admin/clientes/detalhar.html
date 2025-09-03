@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h1>Detalhes do Cliente</h1>
+    <div>
+        <a href="/admin/clientes/alterar/{{cliente.id}}" class="btn btn-warning">
+            <i class="bi-pencil"></i> Alterar
+        </a>
+        <a href="/admin/clientes" class="btn btn-secondary">
+            <i class="bi-arrow-left"></i> Voltar
+        </a>
+    </div>
+</div>
+<hr>
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 text-center">
+                <div class="mb-3">
+                    <i class="bi-person-circle" style="font-size: 150px; color: #6c757d;"></i>
+                </div>
+                <h3>{{cliente.nome}}</h3>
+                <p class="text-muted">Cliente #{{"{:06d}".format(cliente.id)}}</p>
+            </div>
+            <div class="col-md-9">
+                <h4 class="mb-3">Informações Pessoais</h4>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">Nome Completo</h6>
+                                <p class="card-text fs-5">{{cliente.nome}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">CPF</h6>
+                                <p class="card-text fs-5">{{cliente.cpf}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h4 class="mb-3">Informações de Contato</h4>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">E-mail</h6>
+                                <p class="card-text fs-5">
+                                    <i class="bi-envelope"></i> {{cliente.email}}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">Telefone</h6>
+                                <p class="card-text fs-5">
+                                    <i class="bi-telephone"></i> {{cliente.telefone}}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info">
+                    <h5><i class="bi-shield-lock"></i> Informações de Segurança</h5>
+                    <p class="mb-0">A senha do cliente está criptografada e não pode ser visualizada por questões de segurança.</p>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <a href="/admin/clientes/alterar/{{cliente.id}}" class="btn btn-warning">
+                        <i class="bi-pencil"></i> Alterar Cliente
+                    </a>
+                    <a href="/admin/clientes/excluir/{{cliente.id}}" class="btn btn-danger">
+                        <i class="bi-trash"></i> Excluir Cliente
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

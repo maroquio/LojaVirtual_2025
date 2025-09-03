@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<div class="card">
+    <div class="card-body">
+        <h2>Cadastro de Cliente</h2>
+        <hr>
+        {% if mensagem %}
+        <div class="alert alert-danger" role="alert">
+            {{ mensagem }}
+        </div>
+        {% endif %}
+        <form action="/admin/clientes/cadastrar" method="post">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="nome" name="nome" placeholder="Nome Completo" required>
+                        <label for="nome">Nome Completo</label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="cpf" name="cpf" placeholder="CPF" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" title="Formato: 000.000.000-00" required>
+                        <label for="cpf">CPF</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control" id="email" name="email" placeholder="E-mail" required>
+                        <label for="email">E-mail</label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input type="tel" class="form-control" id="telefone" name="telefone" placeholder="Telefone" pattern="\(\d{2}\) \d{4,5}-\d{4}" title="Formato: (00) 0000-0000 ou (00) 00000-0000" required>
+                        <label for="telefone">Telefone</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control" id="senha" name="senha" placeholder="Senha" minlength="6" required>
+                        <label for="senha">Senha</label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control" id="confirmar_senha" name="confirmar_senha" placeholder="Confirmar Senha" minlength="6" required>
+                        <label for="confirmar_senha">Confirmar Senha</label>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary me-2">Cadastrar Cliente</button>
+            <a href="/admin/clientes" class="btn btn-secondary">Cancelar Cadastro</a>
+        </form>
+    </div>
+</div>
+
+<script>
+document.querySelector('form').addEventListener('submit', function(e) {
+    const senha = document.getElementById('senha').value;
+    const confirmarSenha = document.getElementById('confirmar_senha').value;
+    
+    if (senha !== confirmarSenha) {
+        e.preventDefault();
+        alert('As senhas não coincidem!');
+    }
+});
+
+// Máscaras para CPF e Telefone
+document.getElementById('cpf').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 11) value = value.slice(0, 11);
+    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+    value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    e.target.value = value;
+});
+
+document.getElementById('telefone').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 11) value = value.slice(0, 11);
+    if (value.length > 6) {
+        if (value.length === 11) {
+            value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+        } else {
+            value = value.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+        }
+    } else if (value.length > 2) {
+        value = value.replace(/(\d{2})(\d{0,5})/, '($1) $2');
+    } else {
+        value = value.replace(/(\d{0,2})/, '($1');
+    }
+    e.target.value = value;
+});
+</script>
+{% endblock %}

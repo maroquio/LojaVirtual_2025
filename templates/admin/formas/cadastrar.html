@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<div class="card">
+    <div class="card-body">
+        <h2>Cadastro de Forma de Pagamento</h2>
+        <hr>
+        {% if mensagem %}
+        <div class="alert alert-danger" role="alert">
+            {{ mensagem }}
+        </div>
+        {% endif %}
+        <form action="/admin/formas/cadastrar" method="post">
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="nome" name="nome" placeholder="Nome da Forma de Pagamento" required>
+                <label for="nome">Nome da Forma de Pagamento</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="number" step="0.01" min="0" max="100" class="form-control" id="desconto" name="desconto" placeholder="Desconto (%)" required>
+                <label for="desconto">Desconto (%)</label>
+            </div>
+            <button type="submit" class="btn btn-primary me-2">Cadastrar Forma de Pagamento</button>
+            <a href="/admin/formas" class="btn btn-secondary">Cancelar Cadastro</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

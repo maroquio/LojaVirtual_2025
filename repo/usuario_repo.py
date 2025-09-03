@@ -1,7 +1,7 @@
 from typing import Any, Optional
 from model.usuario_model import Usuario
 from sql.usuario_sql import *
-from data.util import get_connection
+from util.db_util import get_connection
 
 def criar_tabela() -> bool:
     with get_connection() as conn:

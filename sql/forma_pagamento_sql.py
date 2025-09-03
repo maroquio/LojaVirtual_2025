@@ -16,3 +16,21 @@ id, nome, desconto
 FROM forma_pagamento
 ORDER BY nome
 """
+
+OBTER_POR_ID = """
+SELECT
+id, nome, desconto
+FROM forma_pagamento
+WHERE id = ?
+"""
+
+ATUALIZAR = """
+UPDATE forma_pagamento
+SET nome = ?, desconto = ?
+WHERE id = ?
+"""
+
+EXCLUIR_POR_ID = """
+DELETE FROM forma_pagamento
+WHERE id = ?
+"""

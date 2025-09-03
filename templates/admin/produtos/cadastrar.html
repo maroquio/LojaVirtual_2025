@@ -4,7 +4,21 @@
     <div class="card-body">
         <h2>Cadastro de Produto</h2>
         <hr>
-        <form action="/admin/produtos/post_cadastrar" method="post">
+        {% if mensagem %}
+        <div class="alert alert-danger" role="alert">
+            {{ mensagem }}
+        </div>
+        {% endif %}
+        <form action="/admin/produtos/cadastrar" method="post">
+            <div class="form-floating mb-3">
+                <select class="form-select" id="categoria_id" name="categoria_id" required>
+                    <option value="">Selecione uma categoria</option>
+                    {% for categoria in categorias %}
+                    <option value="{{ categoria.id }}">{{ categoria.nome }}</option>
+                    {% endfor %}
+                </select>
+                <label for="categoria_id">Categoria</label>
+            </div>
             <div class="form-floating mb-3">
                 <input type="text" class="form-control" id="nome" name="nome" placeholder="Nome do Produto" required>
                 <label for="nome">Nome do Produto</label>
@@ -17,8 +31,7 @@
             <div class="row">
                 <div class="col-6">
                     <div class="form-floating mb-3">
-                        <input type="number" class="form-control" id="preco" name="preco" placeholder="Preço do Produto"
-                            required>
+                        <input type="number" step="0.01" class="form-control" id="preco" name="preco" placeholder="Preço do Produto"
                             required>
                         <label for="preco">Preço do Produto</label>
                     </div>

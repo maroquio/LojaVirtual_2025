@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<div class="card">
+    <div class="card-body">
+        <h2>Excluir Produto</h2>
+        <hr>
+        {% if mensagem %}
+        <div class="alert alert-danger" role="alert">
+            {{ mensagem }}
+        </div>
+        {% endif %}
+        <div class="alert alert-warning" role="alert">
+            <h4 class="alert-heading">Confirmar Exclusão</h4>
+            <p>Tem certeza que deseja excluir o produto abaixo?</p>
+            <hr>
+            <p class="mb-0">
+                <strong>Nome:</strong> {{ produto.nome }}<br>
+                <strong>Descrição:</strong> {{ produto.descricao }}<br>
+                <strong>Preço:</strong> R$ {{ "%.2f"|format(produto.preco) }}<br>
+                <strong>Quantidade:</strong> {{ produto.quantidade }}
+            </p>
+        </div>
+        <form action="/admin/produtos/excluir" method="post">
+            <input type="hidden" name="id" value="{{ produto.id }}">
+            <button type="submit" class="btn btn-danger me-2">Confirmar Exclusão</button>
+            <a href="/admin/produtos" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

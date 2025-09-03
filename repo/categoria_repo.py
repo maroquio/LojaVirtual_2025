@@ -1,7 +1,7 @@
 from typing import Optional
 from model.categoria_model import Categoria
 from sql.categoria_sql import *
-from data.util import get_connection
+from util.db_util import get_connection
 
 def criar_tabela() -> bool:
     with get_connection() as conn:
