@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <img src="{{ request.session.get('usuario').foto or '/static/img/user-default.png' }}" 
+                         class="rounded-circle mb-3" 
+                         style="width: 150px; height: 150px; object-fit: cover;"
+                         alt="Foto do perfil">
+                    <h5>{{ request.session.get('usuario').nome }}</h5>
+                    <p class="text-muted">{{ request.session.get('usuario').perfil|title }}</p>
+                </div>
+            </div>
+            
+            <div class="list-group mt-3">
+                <a href="/perfil" class="list-group-item list-group-item-action">
+                    <i class="bi-person"></i> Meus Dados
+                </a>
+                <a href="/perfil/alterar-senha" class="list-group-item list-group-item-action active">
+                    <i class="bi-key"></i> Alterar Senha
+                </a>
+                {% if request.session.get('usuario').perfil == 'cliente' %}
+                <a href="/perfil/pedidos" class="list-group-item list-group-item-action">
+                    <i class="bi-bag"></i> Meus Pedidos
+                </a>
+                <a href="/perfil/enderecos" class="list-group-item list-group-item-action">
+                    <i class="bi-geo-alt"></i> Endereços
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Alterar Senha</h4>
+                </div>
+                <div class="card-body">
+                    {% if erro %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ erro }}
+                    </div>
+                    {% endif %}
+                    
+                    {% if sucesso %}
+                    <div class="alert alert-success" role="alert">
+                        {{ sucesso }}
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post" action="/perfil/alterar-senha">
+                        <div class="mb-3">
+                            <label for="senha_atual" class="form-label">Senha Atual</label>
+                            <input type="password" class="form-control" id="senha_atual" 
+                                   name="senha_atual" required autofocus>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="senha_nova" class="form-label">Nova Senha</label>
+                            <input type="password" class="form-control" id="senha_nova" 
+                                   name="senha_nova" minlength="6" required>
+                            <div class="form-text">
+                                A senha deve ter no mínimo 6 caracteres
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="confirmar_senha" class="form-label">Confirmar Nova Senha</label>
+                            <input type="password" class="form-control" id="confirmar_senha" 
+                                   name="confirmar_senha" minlength="6" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi-check-lg"></i> Alterar Senha
+                        </button>
+                        <a href="/perfil" class="btn btn-secondary">
+                            <i class="bi-x-lg"></i> Cancelar
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Validação de senha
+document.querySelector('form').addEventListener('submit', function(e) {
+    const senhaNova = document.getElementById('senha_nova').value;
+    const confirmarSenha = document.getElementById('confirmar_senha').value;
+    
+    if (senhaNova !== confirmarSenha) {
+        e.preventDefault();
+        alert('As novas senhas não coincidem!');
+        document.getElementById('confirmar_senha').focus();
+    }
+});
+</script>
+{% endblock %}

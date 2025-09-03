@@ -4,6 +4,7 @@ from fastapi.responses import RedirectResponse
 from model.produto_model import Produto
 from repo import produto_repo, categoria_repo
 from util.template_util import criar_templates
+from util.auth_decorator import requer_autenticacao
 
 
 router = APIRouter()
@@ -11,27 +12,30 @@ templates = criar_templates("templates/admin/produtos")
 
 
 @router.get("/")
-async def gets():
+@requer_autenticacao(["admin"])
+async def gets(request: Request, usuario_logado: dict = None):
     produtos = produto_repo.obter_todos()
     response = templates.TemplateResponse(
-        "listar.html", {"request": {}, "produtos": produtos}
+        "listar.html", {"request": request, "produtos": produtos}
     )
     return response
 
 
 @router.get("/detalhar/{id}")
-async def get_detalhar(id: int):
+@requer_autenticacao(["admin"])
+async def get_detalhar(request: Request, id: int, usuario_logado: dict = None):
     produto = produto_repo.obter_por_id(id)
     if produto:
         response = templates.TemplateResponse(
-            "detalhar.html", {"request": {}, "produto": produto}
+            "detalhar.html", {"request": request, "produto": produto}
         )
         return response
     return RedirectResponse("/admin/produtos", status.HTTP_303_SEE_OTHER)
 
 
 @router.get("/cadastrar")
-async def get_cadastrar(request: Request):
+@requer_autenticacao(["admin"])
+async def get_cadastrar(request: Request, usuario_logado: dict = None):
     categorias = categoria_repo.obter_todos()
     response = templates.TemplateResponse(
         "cadastrar.html", {"request": request, "categorias": categorias}
@@ -40,6 +44,7 @@ async def get_cadastrar(request: Request):
 
 
 @router.post("/cadastrar")
+@requer_autenticacao(["admin"])
 async def post_cadastrar(
     request: Request,
     nome: str = Form(...),
@@ -47,6 +52,7 @@ async def post_cadastrar(
     preco: float = Form(...),
     quantidade: int = Form(...),
     categoria_id: int = Form(...),
+    usuario_logado: dict = None
 ):
     produto = Produto(
         id=0,
@@ -72,19 +78,21 @@ async def post_cadastrar(
 
 
 @router.get("/alterar/{id}")
-async def get_alterar(id: int):
+@requer_autenticacao(["admin"])
+async def get_alterar(request: Request, id: int, usuario_logado: dict = None):
     produto = produto_repo.obter_por_id(id)
     categorias = categoria_repo.obter_todos()
     if produto:
         response = templates.TemplateResponse(
             "alterar.html",
-            {"request": {}, "produto": produto, "categorias": categorias},
+            {"request": request, "produto": produto, "categorias": categorias},
         )
         return response
     return RedirectResponse("/admin/produtos", status.HTTP_303_SEE_OTHER)
 
 
 @router.post("/alterar")
+@requer_autenticacao(["admin"])
 async def post_alterar(
     request: Request,
     id: int = Form(...),
@@ -93,6 +101,7 @@ async def post_alterar(
     preco: float = Form(...),
     quantidade: int = Form(...),
     categoria_id: int = Form(...),
+    usuario_logado: dict = None
 ):
     produto = Produto(
         id=id,
@@ -118,7 +127,8 @@ async def post_alterar(
 
 
 @router.get("/excluir/{id}")
-async def get_excluir(request: Request, id: int):
+@requer_autenticacao(["admin"])
+async def get_excluir(request: Request, id: int, usuario_logado: dict = None):
     produto = produto_repo.obter_por_id(id)
     if produto:
         response = templates.TemplateResponse(
@@ -129,7 +139,8 @@ async def get_excluir(request: Request, id: int):
 
 
 @router.post("/excluir")
-async def post_excluir(request: Request, id: int = Form(...)):
+@requer_autenticacao(["admin"])
+async def post_excluir(request: Request, id: int = Form(...), usuario_logado: dict = None):
     if produto_repo.excluir_por_id(id):
         response = RedirectResponse("/admin/produtos", status.HTTP_303_SEE_OTHER)
         return response

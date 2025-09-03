@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<div class="container mt-5">
+    <h1>Administradores</h1>
+    
+    {% if request.query_params.get('erro') == 'auto_exclusao' %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        Você não pode excluir seu próprio usuário!
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+    
+    <a href="/admin/usuarios/cadastro" class="btn btn-primary mb-3">
+        <i class="bi-plus-circle"></i> Novo Administrador
+    </a>
+    
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Data Cadastro</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                <tr>
+                    <td>{{ usuario.id }}</td>
+                    <td>{{ usuario.nome }}</td>
+                    <td>{{ usuario.email }}</td>
+                    <td>{{ usuario.data_cadastro }}</td>
+                    <td>
+                        <a href="/admin/usuarios/alterar/{{ usuario.id }}" class="btn btn-sm btn-success">
+                            <i class="bi-pencil"></i> Alterar
+                        </a>
+                        {% if usuario.id != request.session.get('usuario').id %}
+                        <a href="/admin/usuarios/excluir/{{ usuario.id }}" class="btn btn-sm btn-danger">
+                            <i class="bi-trash"></i> Excluir
+                        </a>
+                        {% else %}
+                        <span class="text-muted">
+                            <small>(você)</small>
+                        </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center">Nenhum administrador cadastrado</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

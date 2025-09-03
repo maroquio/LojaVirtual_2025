@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4">Redefinir Senha</h2>
+                    
+                    {% if erro %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ erro }}
+                    </div>
+                    {% endif %}
+                    
+                    {% if sucesso %}
+                    <div class="alert alert-success" role="alert">
+                        {{ sucesso }}
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="/login" class="btn btn-primary btn-lg">
+                            <i class="bi-box-arrow-in-right"></i> Fazer Login
+                        </a>
+                    </div>
+                    {% elif not erro or token %}
+                    
+                    <p class="text-muted mb-4">
+                        Digite sua nova senha abaixo.
+                    </p>
+                    
+                    <form method="post" action="/redefinir-senha/{{ token }}">
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" id="senha" name="senha" 
+                                   placeholder="Nova Senha" minlength="6" required autofocus>
+                            <label for="senha">Nova Senha</label>
+                            <div class="form-text">Mínimo 6 caracteres</div>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" id="confirmar_senha" name="confirmar_senha" 
+                                   placeholder="Confirmar Nova Senha" minlength="6" required>
+                            <label for="confirmar_senha">Confirmar Nova Senha</label>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi-key"></i> Redefinir Senha
+                            </button>
+                        </div>
+                    </form>
+                    {% else %}
+                    <div class="text-center">
+                        <a href="/esqueci-senha" class="btn btn-primary">
+                            <i class="bi-envelope"></i> Solicitar novo link
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Validação de senha
+if (document.querySelector('form')) {
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const senha = document.getElementById('senha').value;
+        const confirmarSenha = document.getElementById('confirmar_senha').value;
+        
+        if (senha !== confirmarSenha) {
+            e.preventDefault();
+            alert('As senhas não coincidem!');
+            document.getElementById('confirmar_senha').focus();
+        }
+    });
+}
+</script>
+{% endblock %}

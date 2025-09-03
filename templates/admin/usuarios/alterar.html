@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<div class="container mt-5">
+    <h1>Alterar Administrador</h1>
+    
+    {% if request.query_params.get('erro') == 'email_existe' %}
+    <div class="alert alert-danger" role="alert">
+        Este e-mail já está cadastrado no sistema!
+    </div>
+    {% endif %}
+    
+    <form method="post" action="/admin/usuarios/alterar/{{ usuario.id }}">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="nome" class="form-label">Nome</label>
+                    <input type="text" class="form-control" id="nome" name="nome" 
+                           value="{{ usuario.nome }}" required autofocus>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="email" class="form-label">E-mail</label>
+                    <input type="email" class="form-control" id="email" name="email" 
+                           value="{{ usuario.email }}" required>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="senha" class="form-label">Nova Senha (opcional)</label>
+                    <input type="password" class="form-control" id="senha" name="senha" minlength="6">
+                    <div class="form-text">Deixe em branco para manter a senha atual</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="confirmar_senha" class="form-label">Confirmar Nova Senha</label>
+                    <input type="password" class="form-control" id="confirmar_senha" minlength="6">
+                </div>
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-success">
+            <i class="bi-check-lg"></i> Salvar
+        </button>
+        <a href="/admin/usuarios/lista" class="btn btn-secondary">
+            <i class="bi-x-lg"></i> Cancelar
+        </a>
+    </form>
+</div>
+
+<script>
+// Validação de senha
+document.querySelector('form').addEventListener('submit', function(e) {
+    const senha = document.getElementById('senha').value;
+    const confirmarSenha = document.getElementById('confirmar_senha').value;
+    
+    // Se uma senha foi digitada, verificar se as duas coincidem
+    if (senha && senha !== confirmarSenha) {
+        e.preventDefault();
+        alert('As senhas não coincidem!');
+        document.getElementById('confirmar_senha').focus();
+    }
+    
+    // Se confirmar senha foi digitada mas senha não
+    if (confirmarSenha && !senha) {
+        e.preventDefault();
+        alert('Digite a nova senha primeiro!');
+        document.getElementById('senha').focus();
+    }
+});
+</script>
+{% endblock %}

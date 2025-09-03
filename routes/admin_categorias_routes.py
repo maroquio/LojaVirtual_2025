@@ -4,28 +4,32 @@ from fastapi.responses import RedirectResponse
 from model.categoria_model import Categoria
 from repo import categoria_repo
 from util.template_util import criar_templates
+from util.auth_decorator import requer_autenticacao
 
 
 router = APIRouter()
 templates = criar_templates("templates/admin/categorias")
 
 @router.get("/")
-async def gets():
+@requer_autenticacao(["admin"])
+async def gets(request: Request, usuario_logado: dict = None):
     categorias = categoria_repo.obter_todos()
     response = templates.TemplateResponse(
-        "listar.html", {"request": {}, "categorias": categorias}
+        "listar.html", {"request": request, "categorias": categorias}
     )
     return response
 
 
 @router.get("/cadastrar")
-async def get_cadastrar(request: Request):
+@requer_autenticacao(["admin"])
+async def get_cadastrar(request: Request, usuario_logado: dict = None):
     response = templates.TemplateResponse("cadastrar.html", {"request": request})
     return response
 
 
 @router.post("/cadastrar")
-async def post_cadastrar(request: Request, nome: str = Form(...)):
+@requer_autenticacao(["admin"])
+async def post_cadastrar(request: Request, nome: str = Form(...), usuario_logado: dict = None):
     categoria = Categoria(id=0, nome=nome)
     categoria_id = categoria_repo.inserir(categoria)
     if categoria_id:
@@ -38,18 +42,20 @@ async def post_cadastrar(request: Request, nome: str = Form(...)):
 
 
 @router.get("/alterar/{id}")
-async def get_alterar(id: int):
+@requer_autenticacao(["admin"])
+async def get_alterar(request: Request, id: int, usuario_logado: dict = None):
     categoria = categoria_repo.obter_por_id(id)
     if categoria:
         response = templates.TemplateResponse(
-            "alterar.html", {"request": {}, "categoria": categoria}
+            "alterar.html", {"request": request, "categoria": categoria}
         )
         return response
     return RedirectResponse("/admin/categorias", status.HTTP_303_SEE_OTHER)
 
 
 @router.post("/alterar")
-async def post_alterar(request: Request, id: int = Form(...), nome: str = Form(...)):
+@requer_autenticacao(["admin"])
+async def post_alterar(request: Request, id: int = Form(...), nome: str = Form(...), usuario_logado: dict = None):
     categoria = Categoria(id=id, nome=nome)
     if categoria_repo.atualizar(categoria):
         response = RedirectResponse(
@@ -63,7 +69,8 @@ async def post_alterar(request: Request, id: int = Form(...), nome: str = Form(.
 
 
 @router.get("/excluir/{id}")
-async def get_excluir(request: Request, id: int):
+@requer_autenticacao(["admin"])
+async def get_excluir(request: Request, id: int, usuario_logado: dict = None):
     categoria = categoria_repo.obter_por_id(id)
     if categoria:
         response = templates.TemplateResponse(
@@ -74,7 +81,8 @@ async def get_excluir(request: Request, id: int):
 
 
 @router.post("/excluir")
-async def post_excluir(request: Request, id: int = Form(...)):
+@requer_autenticacao(["admin"])
+async def post_excluir(request: Request, id: int = Form(...), usuario_logado: dict = None):
     if categoria_repo.excluir_por_id(id):
         response = RedirectResponse("/admin/categorias", status.HTTP_303_SEE_OTHER)
         return response

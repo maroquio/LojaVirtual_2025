@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">Confirmar Exclusão</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="bi-exclamation-triangle"></i>
+                        <strong>Atenção!</strong> Esta ação não pode ser desfeita.
+                    </div>
+                    
+                    <p>Tem certeza que deseja excluir o administrador?</p>
+                    
+                    <div class="bg-light p-3 rounded mb-3">
+                        <strong>Nome:</strong> {{ usuario.nome }}<br>
+                        <strong>E-mail:</strong> {{ usuario.email }}<br>
+                        <strong>ID:</strong> {{ usuario.id }}
+                    </div>
+                    
+                    <form method="post" action="/admin/usuarios/excluir/{{ usuario.id }}">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi-trash"></i> Confirmar Exclusão
+                        </button>
+                        <a href="/admin/usuarios/lista" class="btn btn-secondary">
+                            <i class="bi-x-lg"></i> Cancelar
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

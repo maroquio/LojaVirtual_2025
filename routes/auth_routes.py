@@ -1,0 +1,305 @@
+from fastapi import APIRouter, Form, Request, status
+from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi.templating import Jinja2Templates
+
+from model.usuario_model import Usuario
+from model.cliente_model import Cliente
+from repo import usuario_repo, cliente_repo
+from util.security import criar_hash_senha, verificar_senha, gerar_token_redefinicao, obter_data_expiracao_token, validar_forca_senha
+from util.auth_decorator import criar_sessao, destruir_sessao, obter_usuario_logado, esta_logado
+from util.template_util import criar_templates
+
+router = APIRouter()
+templates = criar_templates("templates/auth")
+
+
+@router.get("/login")
+async def get_login(request: Request, redirect: str = None):
+    # Se já está logado, redirecionar
+    if esta_logado(request):
+        return RedirectResponse("/", status.HTTP_303_SEE_OTHER)
+    
+    return templates.TemplateResponse(
+        "login.html", 
+        {"request": request, "redirect": redirect}
+    )
+
+
+@router.post("/login")
+async def post_login(
+    request: Request,
+    email: str = Form(...),
+    senha: str = Form(...),
+    redirect: str = Form(None)
+):
+    # Buscar usuário pelo email
+    usuario = usuario_repo.obter_por_email(email)
+    
+    if not usuario or not verificar_senha(senha, usuario.senha):
+        return templates.TemplateResponse(
+            "login.html",
+            {
+                "request": request,
+                "erro": "Email ou senha inválidos",
+                "email": email,
+                "redirect": redirect
+            }
+        )
+    
+    # Criar sessão
+    usuario_dict = {
+        "id": usuario.id,
+        "nome": usuario.nome,
+        "email": usuario.email,
+        "perfil": usuario.perfil,
+        "foto": usuario.foto
+    }
+    criar_sessao(request, usuario_dict)
+    
+    # Redirecionar para a página solicitada ou home
+    url_redirect = redirect if redirect else "/"
+    return RedirectResponse(url_redirect, status.HTTP_303_SEE_OTHER)
+
+
+@router.get("/logout")
+async def logout(request: Request):
+    destruir_sessao(request)
+    return RedirectResponse("/", status.HTTP_303_SEE_OTHER)
+
+
+@router.get("/cadastro")
+async def get_cadastro(request: Request):
+    # Se já está logado, redirecionar
+    if esta_logado(request):
+        return RedirectResponse("/", status.HTTP_303_SEE_OTHER)
+    
+    return templates.TemplateResponse("cadastro.html", {"request": request})
+
+
+@router.post("/cadastro")
+async def post_cadastro(
+    request: Request,
+    nome: str = Form(...),
+    email: str = Form(...),
+    cpf: str = Form(...),
+    telefone: str = Form(...),
+    senha: str = Form(...),
+    confirmar_senha: str = Form(...)
+):
+    # Validações
+    if senha != confirmar_senha:
+        return templates.TemplateResponse(
+            "cadastro.html",
+            {
+                "request": request,
+                "erro": "As senhas não coincidem",
+                "nome": nome,
+                "email": email,
+                "cpf": cpf,
+                "telefone": telefone
+            }
+        )
+    
+    # Validar força da senha
+    senha_valida, msg_erro = validar_forca_senha(senha)
+    if not senha_valida:
+        return templates.TemplateResponse(
+            "cadastro.html",
+            {
+                "request": request,
+                "erro": msg_erro,
+                "nome": nome,
+                "email": email,
+                "cpf": cpf,
+                "telefone": telefone
+            }
+        )
+    
+    # Verificar se email já existe
+    if usuario_repo.obter_por_email(email):
+        return templates.TemplateResponse(
+            "cadastro.html",
+            {
+                "request": request,
+                "erro": "Este email já está cadastrado",
+                "nome": nome,
+                "cpf": cpf,
+                "telefone": telefone
+            }
+        )
+    
+    try:
+        # Criar usuário com senha hash
+        usuario = Usuario(
+            id=0,
+            nome=nome,
+            email=email,
+            senha=criar_hash_senha(senha),
+            perfil='cliente'
+        )
+        
+        # Inserir usuário e cliente
+        from util.db_util import get_connection
+        with get_connection() as conn:
+            cursor = conn.cursor()
+            
+            # Inserir usuário
+            usuario_id = usuario_repo.inserir(usuario, cursor)
+            
+            # Inserir dados do cliente
+            cliente = Cliente(
+                id=usuario_id,
+                cpf=cpf,
+                telefone=telefone
+            )
+            cursor.execute(
+                "INSERT INTO cliente (id, cpf, telefone) VALUES (?, ?, ?)",
+                (cliente.id, cliente.cpf, cliente.telefone)
+            )
+            
+            conn.commit()
+        
+        # Fazer login automático após cadastro
+        usuario_dict = {
+            "id": usuario_id,
+            "nome": nome,
+            "email": email,
+            "perfil": 'cliente',
+            "foto": None
+        }
+        criar_sessao(request, usuario_dict)
+        
+        return RedirectResponse("/perfil", status.HTTP_303_SEE_OTHER)
+        
+    except Exception as e:
+        return templates.TemplateResponse(
+            "cadastro.html",
+            {
+                "request": request,
+                "erro": "Erro ao criar cadastro. Tente novamente.",
+                "nome": nome,
+                "email": email,
+                "cpf": cpf,
+                "telefone": telefone
+            }
+        )
+
+
+@router.get("/esqueci-senha")
+async def get_esqueci_senha(request: Request):
+    return templates.TemplateResponse("esqueci_senha.html", {"request": request})
+
+
+@router.post("/esqueci-senha")
+async def post_esqueci_senha(
+    request: Request,
+    email: str = Form(...)
+):
+    usuario = usuario_repo.obter_por_email(email)
+    
+    # Sempre mostrar mensagem de sucesso por segurança (não revelar emails válidos)
+    mensagem_sucesso = "Se o email estiver cadastrado, você receberá instruções para redefinir sua senha."
+    
+    if usuario:
+        # Gerar token e salvar no banco
+        token = gerar_token_redefinicao()
+        data_expiracao = obter_data_expiracao_token(24)  # 24 horas
+        usuario_repo.atualizar_token(email, token, data_expiracao)
+        
+        # TODO: Enviar email com o link de redefinição
+        # Por enquanto, vamos apenas mostrar o link (em produção, remover isso)
+        link_redefinicao = f"http://localhost:8000/redefinir-senha/{token}"
+        
+        return templates.TemplateResponse(
+            "esqueci_senha.html",
+            {
+                "request": request,
+                "sucesso": mensagem_sucesso,
+                "debug_link": link_redefinicao  # Remover em produção
+            }
+        )
+    
+    return templates.TemplateResponse(
+        "esqueci_senha.html",
+        {
+            "request": request,
+            "sucesso": mensagem_sucesso
+        }
+    )
+
+
+@router.get("/redefinir-senha/{token}")
+async def get_redefinir_senha(request: Request, token: str):
+    usuario = usuario_repo.obter_por_token(token)
+    
+    if not usuario:
+        return templates.TemplateResponse(
+            "redefinir_senha.html",
+            {
+                "request": request,
+                "erro": "Link inválido ou expirado"
+            }
+        )
+    
+    return templates.TemplateResponse(
+        "redefinir_senha.html",
+        {
+            "request": request,
+            "token": token
+        }
+    )
+
+
+@router.post("/redefinir-senha/{token}")
+async def post_redefinir_senha(
+    request: Request,
+    token: str,
+    senha: str = Form(...),
+    confirmar_senha: str = Form(...)
+):
+    usuario = usuario_repo.obter_por_token(token)
+    
+    if not usuario:
+        return templates.TemplateResponse(
+            "redefinir_senha.html",
+            {
+                "request": request,
+                "erro": "Link inválido ou expirado"
+            }
+        )
+    
+    # Validações
+    if senha != confirmar_senha:
+        return templates.TemplateResponse(
+            "redefinir_senha.html",
+            {
+                "request": request,
+                "token": token,
+                "erro": "As senhas não coincidem"
+            }
+        )
+    
+    # Validar força da senha
+    senha_valida, msg_erro = validar_forca_senha(senha)
+    if not senha_valida:
+        return templates.TemplateResponse(
+            "redefinir_senha.html",
+            {
+                "request": request,
+                "token": token,
+                "erro": msg_erro
+            }
+        )
+    
+    # Atualizar senha e limpar token
+    senha_hash = criar_hash_senha(senha)
+    usuario_repo.atualizar_senha(usuario.id, senha_hash)
+    usuario_repo.limpar_token(usuario.id)
+    
+    return templates.TemplateResponse(
+        "redefinir_senha.html",
+        {
+            "request": request,
+            "sucesso": "Senha redefinida com sucesso! Você já pode fazer login."
+        }
+    )

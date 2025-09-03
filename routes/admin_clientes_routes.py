@@ -4,6 +4,7 @@ from fastapi.responses import RedirectResponse
 from model.cliente_model import Cliente
 from repo import cliente_repo
 from util.template_util import criar_templates
+from util.auth_decorator import requer_autenticacao
 
 
 router = APIRouter()
@@ -11,32 +12,36 @@ templates = criar_templates("templates/admin/clientes")
 
 
 @router.get("/")
-async def gets():
+@requer_autenticacao(["admin"])
+async def gets(request: Request, usuario_logado: dict = None):
     clientes = cliente_repo.obter_todos()
     response = templates.TemplateResponse(
-        "listar.html", {"request": {}, "clientes": clientes}
+        "listar.html", {"request": request, "clientes": clientes}
     )
     return response
 
 
 @router.get("/detalhar/{id}")
-async def get_detalhar(id: int):
+@requer_autenticacao(["admin"])
+async def get_detalhar(request: Request, id: int, usuario_logado: dict = None):
     cliente = cliente_repo.obter_por_id(id)
     if cliente:
         response = templates.TemplateResponse(
-            "detalhar.html", {"request": {}, "cliente": cliente}
+            "detalhar.html", {"request": request, "cliente": cliente}
         )
         return response
     return RedirectResponse("/admin/clientes", status.HTTP_303_SEE_OTHER)
 
 
 @router.get("/cadastrar")
-async def get_cadastrar(request: Request):
+@requer_autenticacao(["admin"])
+async def get_cadastrar(request: Request, usuario_logado: dict = None):
     response = templates.TemplateResponse("cadastrar.html", {"request": request})
     return response
 
 
 @router.post("/cadastrar")
+@requer_autenticacao(["admin"])
 async def post_cadastrar(
     request: Request,
     nome: str = Form(...),
@@ -44,6 +49,7 @@ async def post_cadastrar(
     email: str = Form(...),
     telefone: str = Form(...),
     senha: str = Form(...),
+    usuario_logado: dict = None
 ):
     cliente = Cliente(
         id=0,
@@ -64,17 +70,19 @@ async def post_cadastrar(
 
 
 @router.get("/alterar/{id}")
-async def get_alterar(id: int):
+@requer_autenticacao(["admin"])
+async def get_alterar(request: Request, id: int, usuario_logado: dict = None):
     cliente = cliente_repo.obter_por_id(id)
     if cliente:
         response = templates.TemplateResponse(
-            "alterar.html", {"request": {}, "cliente": cliente}
+            "alterar.html", {"request": request, "cliente": cliente}
         )
         return response
     return RedirectResponse("/admin/clientes", status.HTTP_303_SEE_OTHER)
 
 
 @router.post("/alterar")
+@requer_autenticacao(["admin"])
 async def post_alterar(
     request: Request,
     id: int = Form(...),
@@ -83,6 +91,7 @@ async def post_alterar(
     email: str = Form(...),
     telefone: str = Form(...),
     senha: str = Form(None),
+    usuario_logado: dict = None
 ):
     # Se a senha não foi fornecida, buscar a senha atual
     if not senha:
@@ -109,7 +118,8 @@ async def post_alterar(
 
 
 @router.get("/excluir/{id}")
-async def get_excluir(request: Request, id: int):
+@requer_autenticacao(["admin"])
+async def get_excluir(request: Request, id: int, usuario_logado: dict = None):
     cliente = cliente_repo.obter_por_id(id)
     if cliente:
         response = templates.TemplateResponse(
@@ -120,7 +130,8 @@ async def get_excluir(request: Request, id: int):
 
 
 @router.post("/excluir")
-async def post_excluir(request: Request, id: int = Form(...)):
+@requer_autenticacao(["admin"])
+async def post_excluir(request: Request, id: int = Form(...), usuario_logado: dict = None):
     if cliente_repo.excluir(id):
         response = RedirectResponse("/admin/clientes", status.HTTP_303_SEE_OTHER)
         return response

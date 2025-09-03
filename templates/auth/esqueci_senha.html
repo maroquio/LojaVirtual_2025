@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4">Recuperar Senha</h2>
+                    
+                    {% if erro %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ erro }}
+                    </div>
+                    {% endif %}
+                    
+                    {% if sucesso %}
+                    <div class="alert alert-success" role="alert">
+                        {{ sucesso }}
+                    </div>
+                    
+                    {% if debug_link %}
+                    <!-- REMOVER EM PRODUÇÃO - Apenas para teste -->
+                    <div class="alert alert-warning" role="alert">
+                        <strong>Link de teste (remover em produção):</strong><br>
+                        <a href="{{ debug_link }}" target="_blank">{{ debug_link }}</a>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="text-center mt-3">
+                        <a href="/login" class="btn btn-primary">
+                            <i class="bi-arrow-left"></i> Voltar ao Login
+                        </a>
+                    </div>
+                    {% else %}
+                    
+                    <p class="text-muted mb-4">
+                        Digite seu e-mail cadastrado e enviaremos instruções para redefinir sua senha.
+                    </p>
+                    
+                    <form method="post" action="/esqueci-senha">
+                        <div class="form-floating mb-3">
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   placeholder="E-mail" required autofocus>
+                            <label for="email">E-mail cadastrado</label>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi-envelope"></i> Enviar Instruções
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <a href="/login" class="text-decoration-none">
+                            <i class="bi-arrow-left"></i> Voltar ao Login
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
