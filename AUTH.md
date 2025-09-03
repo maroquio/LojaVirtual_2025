@@ -205,6 +205,7 @@ async def logout(request: Request):
 ```python
 @router.post("/cadastro")
 async def post_cadastro(
+    request: Request,
     nome: str = Form(...),
     email: str = Form(...),
     senha: str = Form(...),

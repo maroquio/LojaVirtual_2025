@@ -23,7 +23,8 @@ from routes.admin_usuarios_routes import router as admin_usuarios_router
 app = FastAPI()
 
 # Configurar SessionMiddleware com uma chave secreta segura
-SECRET_KEY = secrets.token_urlsafe(32)  # Em produção, use uma variável de ambiente
+SECRET_KEY = "LgywzDkuDTHCvW0zW3KELYrNGCyI7C1grkVcLaEP4MelYy7VCgY4b42dJWgOLM3vLPGNX4ig4xHWDoEmPsc0IcGN7DvUNg3mTC04sieAYnERERz0Dn2USgoKrJOyEbDK"
+
 app.add_middleware(
     SessionMiddleware, 
     secret_key=SECRET_KEY,
