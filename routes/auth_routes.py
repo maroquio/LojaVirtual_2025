@@ -176,7 +176,7 @@ async def post_cadastro(
             "cadastro.html",
             {
                 "request": request,
-                "erro": "Erro ao criar cadastro. Tente novamente.",
+                "erro": f"Erro ao criar cadastro. Tente novamente. {e}",
                 "nome": nome,
                 "email": email,
                 "cpf": cpf,
