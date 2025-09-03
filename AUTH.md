@@ -506,4 +506,4 @@ Em caso de dúvidas, consulte o código completo no repositório do projeto ou e
 
 ---
 
-**Desenvolvido para o curso de Programação Web** 🚀
+**Desenvolvido para o curso de Programação para a Web do Ifes Cachoeiro** 🚀
