@@ -4,7 +4,7 @@
     {% for p in produtos %}
     <div class="col">
         <div class="card h-100">
-            <img class="card-img-top" src="https://picsum.photos/200/200?random={{p.id}}" alt="Title" />
+            <img class="card-img-top" src="{{ p.foto_principal or '/static/img/placeholder.png' }}" alt="{{p.nome}}" style="height: 200px; object-fit: cover;" />
             <div class="card-body">
                 <h4 class="card-title">{{p.nome}}</h4>
                 <p class="card-text">

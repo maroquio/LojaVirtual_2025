@@ -9,7 +9,7 @@
             {{ mensagem }}
         </div>
         {% endif %}
-        <form action="/admin/produtos/cadastrar" method="post">
+        <form action="/admin/produtos/cadastrar" method="post" enctype="multipart/form-data">
             <div class="form-floating mb-3">
                 <select class="form-select" id="categoria_id" name="categoria_id" required>
                     <option value="">Selecione uma categoria</option>
@@ -29,18 +29,39 @@
                 <label for="descricao">Descrição do Produto</label>
             </div>
             <div class="row">
-                <div class="col-6">
+                <div class="col-md-4">
                     <div class="form-floating mb-3">
                         <input type="number" step="0.01" class="form-control" id="preco" name="preco" placeholder="Preço do Produto"
                             required>
                         <label for="preco">Preço do Produto</label>
                     </div>
                 </div>
-                <div class="col-6">
+                <div class="col-md-4">
                     <div class="form-floating mb-3">
                         <input type="number" class="form-control" id="quantidade" name="quantidade"
                             placeholder="Quantidade em Estoque" required>
                         <label for="quantidade">Quantidade em Estoque</label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="foto" class="form-label">Foto Principal (Opcional)</label>
+                        <input type="file" class="form-control" id="foto" name="foto" accept="image/*">
+                        <div class="form-text small">Formatos aceitos: JPG, PNG, GIF, WEBP. Será cortada para formato quadrado.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" id="preview-container" style="display: none;">
+                <div class="col-12">
+                    <div class="mb-3">
+                        <label class="form-label">Preview da Foto</label>
+                        <div class="d-flex align-items-center">
+                            <img id="preview-image" src="" alt="Preview" style="width: 150px; height: 150px; object-fit: cover; border: 2px solid #dee2e6; border-radius: 8px;" class="me-3">
+                            <div>
+                                <p class="mb-1">Preview da foto selecionada</p>
+                                <small class="text-muted">A imagem será automaticamente cortada para formato quadrado e redimensionada para 800x800 pixels.</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -49,4 +70,37 @@
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fotoInput = document.getElementById('foto');
+    const previewContainer = document.getElementById('preview-container');
+    const previewImage = document.getElementById('preview-image');
+
+    fotoInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+
+        if (file) {
+            // Verificar se é uma imagem
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                };
+
+                reader.readAsDataURL(file);
+            } else {
+                alert('Por favor, selecione apenas arquivos de imagem.');
+                fotoInput.value = '';
+                previewContainer.style.display = 'none';
+            }
+        } else {
+            previewContainer.style.display = 'none';
+        }
+    });
+});
+</script>
+
 {% endblock %}

@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<div class="d-flex align-items-center justify-content-between">
+    <h1>Galeria de Fotos - {{ produto.nome }}</h1>
+    <a href="/admin/produtos" class="btn btn-secondary">Voltar</a>
+</div>
+<hr>
+
+<div class="row">
+    <div class="col-md-8">
+        <h3>Fotos Existentes</h3>
+        {% if fotos %}
+        <div class="row g-3" id="galeria-fotos">
+            {% for foto in fotos %}
+            {% set foto_numero = foto.split('-')[-1].split('.')[0] | int %}
+            <div class="col-md-4" data-numero="{{ foto_numero }}" draggable="true">
+                <div class="card">
+                    {% if loop.index == 1 %}
+                    <div class="badge bg-primary position-absolute top-0 start-0 m-2">Principal</div>
+                    {% endif %}
+                    <img src="{{ foto }}" class="card-img-top" style="width: 100%; aspect-ratio: 1/1; object-fit: cover;" alt="Foto {{ foto_numero }}">
+                    <div class="card-body text-center">
+                        <p class="card-text small">Foto {{ "{:03d}".format(foto_numero) }}</p>
+                        {% if loop.index == 1 %}
+                        <button type="button" class="btn btn-danger btn-sm" disabled title="A foto principal não pode ser excluída">
+                            <i class="bi-trash"></i> Excluir
+                        </button>
+                        {% else %}
+                        <form method="post" action="/admin/produtos/{{ produto.id }}/galeria/excluir/{{ foto_numero }}"
+                              onsubmit="return confirm('Deseja realmente excluir esta foto?')" style="display: inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="bi-trash"></i> Excluir
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if fotos|length > 1 %}
+        <div class="mt-4">
+            <h4>Reordenar Fotos</h4>
+            <p class="text-muted">Arraste as fotos para reordená-las. A primeira foto será sempre a principal.</p>
+            <form method="post" action="/admin/produtos/{{ produto.id }}/galeria/reordenar" id="form-reordenar">
+                <input type="hidden" name="nova_ordem" id="nova_ordem">
+                <button type="button" class="btn btn-success" onclick="salvarOrdem()">
+                    <i class="bi-check"></i> Salvar Nova Ordem
+                </button>
+            </form>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi-images" style="font-size: 4rem; color: #dee2e6;"></i>
+            <p class="text-muted mt-3">Nenhuma foto cadastrada para este produto.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h3>Adicionar Fotos</h3>
+                <form method="post" action="/admin/produtos/{{ produto.id }}/galeria/upload" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="fotos" class="form-label">Selecionar Fotos</label>
+                        <input type="file" class="form-control" id="fotos" name="fotos" accept="image/*" multiple required>
+                        <div class="form-text">
+                            Selecione uma ou mais fotos.<br>
+                            Formatos aceitos: JPG, PNG, GIF, WEBP.<br>
+                            As imagens serão cortadas para formato quadrado.
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi-upload"></i> Enviar Fotos
+                    </button>
+                </form>
+
+                <hr>
+
+                <div class="mt-3">
+                    <h5>Informações</h5>
+                    <ul class="list-unstyled small text-muted">
+                        <li><i class="bi-info-circle"></i> A primeira foto é sempre a principal</li>
+                        <li><i class="bi-arrow-up-down"></i> Arraste para reordenar</li>
+                        <li><i class="bi-square"></i> Fotos são automaticamente cortadas para formato quadrado</li>
+                        <li><i class="bi-file-earmark-image"></i> Todas as fotos são salvas como JPG</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Sistema de Drag and Drop para reordenar fotos
+let draggedElement = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const galeriaFotos = document.getElementById('galeria-fotos');
+    if (!galeriaFotos) return;
+
+    const fotoCards = galeriaFotos.querySelectorAll('[draggable="true"]');
+
+    fotoCards.forEach(card => {
+        card.addEventListener('dragstart', function(e) {
+            draggedElement = this;
+            this.style.opacity = '0.5';
+        });
+
+        card.addEventListener('dragend', function(e) {
+            this.style.opacity = '';
+            draggedElement = null;
+        });
+
+        card.addEventListener('dragover', function(e) {
+            e.preventDefault();
+        });
+
+        card.addEventListener('drop', function(e) {
+            e.preventDefault();
+            if (this !== draggedElement) {
+                // Trocar posições
+                const allCards = Array.from(galeriaFotos.children);
+                const draggedIndex = allCards.indexOf(draggedElement);
+                const targetIndex = allCards.indexOf(this);
+
+                if (draggedIndex < targetIndex) {
+                    this.parentNode.insertBefore(draggedElement, this.nextSibling);
+                } else {
+                    this.parentNode.insertBefore(draggedElement, this);
+                }
+
+                // Atualizar badges de "Principal"
+                atualizarBadgePrincipal();
+            }
+        });
+    });
+});
+
+function atualizarBadgePrincipal() {
+    const galeriaFotos = document.getElementById('galeria-fotos');
+    if (!galeriaFotos) return;
+
+    // Remover todos os badges existentes
+    galeriaFotos.querySelectorAll('.badge').forEach(badge => badge.remove());
+
+    // Adicionar badge na primeira foto
+    const primeiraFoto = galeriaFotos.firstElementChild;
+    if (primeiraFoto) {
+        const badge = document.createElement('div');
+        badge.className = 'badge bg-primary position-absolute top-0 start-0 m-2';
+        badge.textContent = 'Principal';
+        primeiraFoto.querySelector('.card').appendChild(badge);
+    }
+}
+
+function salvarOrdem() {
+    const galeriaFotos = document.getElementById('galeria-fotos');
+    if (!galeriaFotos) return;
+
+    const cards = galeriaFotos.querySelectorAll('[data-numero]');
+    const novaOrdem = Array.from(cards).map(card => card.dataset.numero);
+
+    document.getElementById('nova_ordem').value = novaOrdem.join(',');
+    document.getElementById('form-reordenar').submit();
+}
+
+// Preview de imagens antes do upload
+document.getElementById('fotos').addEventListener('change', function(e) {
+    const files = e.target.files;
+    if (files.length > 0) {
+        console.log(`${files.length} arquivo(s) selecionado(s)`);
+    }
+});
+</script>
+
+{% endblock %}
