@@ -11,7 +11,7 @@
                     {{p.descricao}}
                 </p>
                 <p class="card-text">
-                    R$ {{p.preco}}
+                    <strong>R$ {{ "%.2f"|format(p.preco) }}</strong>
                 </p>
             </div>
             <div class="card-footer p-2">

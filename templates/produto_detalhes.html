@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+{% block conteudo %}
+
+<!-- CSS do Lightbox2 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css">
+
+<div class="row">
+    <!-- Coluna das Fotos -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Galeria de Fotos</h5>
+
+                {% if fotos|length > 1 %}
+                <!-- Foto principal grande -->
+                <div class="mb-3">
+                    <a href="{{ fotos[0] }}" data-lightbox="produto-gallery" data-title="{{ produto.nome }} - Foto Principal">
+                        <img src="{{ fotos[0] }}"
+                             class="img-fluid"
+                             style="width: 100%; aspect-ratio: 1/1; object-fit: cover; cursor: pointer; border-radius: 8px;"
+                             alt="{{ produto.nome }} - Foto Principal">
+                    </a>
+                </div>
+
+                <!-- Thumbnails das outras fotos -->
+                {% if fotos|length > 1 %}
+                <div class="row g-2">
+                    {% for foto in fotos[1:] %}
+                    <div class="col-3">
+                        <a href="{{ foto }}" data-lightbox="produto-gallery" data-title="{{ produto.nome }} - Foto {{ loop.index + 1 }}">
+                            <img src="{{ foto }}"
+                                 class="img-fluid"
+                                 style="width: 100%; aspect-ratio: 1/1; object-fit: cover; cursor: pointer; border-radius: 4px; border: 2px solid transparent;"
+                                 alt="{{ produto.nome }} - Foto {{ loop.index + 1 }}"
+                                 onmouseover="this.style.border='2px solid #007bff'"
+                                 onmouseout="this.style.border='2px solid transparent'">
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% else %}
+                <!-- Apenas uma foto ou placeholder -->
+                <div class="text-center">
+                    {% if fotos[0] != '/static/img/placeholder.png' %}
+                    <a href="{{ fotos[0] }}" data-lightbox="produto-gallery" data-title="{{ produto.nome }}">
+                        <img src="{{ fotos[0] }}"
+                             class="img-fluid"
+                             style="max-width: 400px; aspect-ratio: 1/1; object-fit: cover; cursor: pointer; border-radius: 8px;"
+                             alt="{{ produto.nome }}">
+                    </a>
+                    {% else %}
+                    <img src="{{ fotos[0] }}"
+                         class="img-fluid"
+                         style="max-width: 400px; aspect-ratio: 1/1; object-fit: cover; border-radius: 8px;"
+                         alt="{{ produto.nome }}">
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if fotos|length > 1 %}
+                <div class="text-center mt-3">
+                    <small class="text-muted">
+                        <i class="bi-info-circle"></i>
+                        Clique nas fotos para visualizar em tamanho completo
+                    </small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Coluna das Informações -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h1 class="card-title">{{ produto.nome }}</h1>
+                    <span class="badge bg-secondary">{{ produto.categoria_nome }}</span>
+                </div>
+
+                <div class="mb-4">
+                    <h3 class="text-success">R$ {{ "%.2f"|format(produto.preco) }}</h3>
+                </div>
+
+                <div class="mb-4">
+                    <h5>Descrição</h5>
+                    <p class="card-text">{{ produto.descricao }}</p>
+                </div>
+
+                <div class="mb-4">
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Categoria:</strong><br>
+                            <span class="text-muted">{{ produto.categoria_nome }}</span>
+                        </div>
+                        <div class="col-6">
+                            <strong>Disponibilidade:</strong><br>
+                            {% if produto.quantidade > 0 %}
+                                <span class="text-success">
+                                    <i class="bi-check-circle"></i>
+                                    {{ produto.quantidade }} em estoque
+                                </span>
+                            {% else %}
+                                <span class="text-danger">
+                                    <i class="bi-x-circle"></i>
+                                    Fora de estoque
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Área de Ações -->
+                <div class="border-top pt-4">
+                    {% if produto.quantidade > 0 %}
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="quantidade" class="form-label">Quantidade:</label>
+                            <input type="number" class="form-control" id="quantidade" value="1" min="1" max="{{ produto.quantidade }}">
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex">
+                        <button class="btn btn-success btn-lg me-md-2" type="button">
+                            <i class="bi-cart-plus"></i> Adicionar ao Carrinho
+                        </button>
+                        <button class="btn btn-outline-danger btn-lg" type="button">
+                            <i class="bi-heart"></i> Favoritar
+                        </button>
+                    </div>
+                    {% else %}
+                    <div class="d-grid">
+                        <button class="btn btn-secondary btn-lg" type="button" disabled>
+                            <i class="bi-x-circle"></i> Produto Indisponível
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Botão Voltar -->
+                <div class="mt-4">
+                    <a href="/" class="btn btn-outline-secondary">
+                        <i class="bi-arrow-left"></i> Voltar à Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Seção de Informações Adicionais -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="produtoTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="descricao-tab" data-bs-toggle="tab" data-bs-target="#descricao-content" type="button" role="tab">
+                            Descrição Detalhada
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="especificacoes-tab" data-bs-toggle="tab" data-bs-target="#especificacoes-content" type="button" role="tab">
+                            Especificações
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="avaliacoes-tab" data-bs-toggle="tab" data-bs-target="#avaliacoes-content" type="button" role="tab">
+                            Avaliações
+                        </button>
+                    </li>
+                </ul>
+                <div class="tab-content mt-3" id="produtoTabsContent">
+                    <div class="tab-pane fade show active" id="descricao-content" role="tabpanel">
+                        <p>{{ produto.descricao }}</p>
+                        <p class="text-muted">
+                            Este produto faz parte da categoria <strong>{{ produto.categoria_nome }}</strong>
+                            e está disponível em nossa loja com entrega para todo o Brasil.
+                        </p>
+                    </div>
+                    <div class="tab-pane fade" id="especificacoes-content" role="tabpanel">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Código do Produto:</strong></td>
+                                <td>{{ "{:06d}".format(produto.id) }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Categoria:</strong></td>
+                                <td>{{ produto.categoria_nome }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Disponibilidade:</strong></td>
+                                <td>{{ produto.quantidade }} unidades</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Preço:</strong></td>
+                                <td>R$ {{ "%.2f"|format(produto.preco) }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="avaliacoes-content" role="tabpanel">
+                        <div class="text-center py-4">
+                            <i class="bi-star" style="font-size: 3rem; color: #ddd;"></i>
+                            <p class="text-muted mt-2">Nenhuma avaliação ainda.</p>
+                            <button class="btn btn-outline-primary">Seja o primeiro a avaliar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript do Lightbox2 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
+
+<script>
+// Configurações do Lightbox
+lightbox.option({
+    'resizeDuration': 200,
+    'wrapAround': true,
+    'albumLabel': "Imagem %1 de %2",
+    'disableScrolling': true
+});
+
+// Funcionalidade do carrinho (placeholder)
+document.addEventListener('DOMContentLoaded', function() {
+    const btnCarrinho = document.querySelector('button:has(.bi-cart-plus)');
+    if (btnCarrinho) {
+        btnCarrinho.addEventListener('click', function() {
+            const quantidade = document.getElementById('quantidade').value;
+            alert(`Produto adicionado ao carrinho!\nQuantidade: ${quantidade}`);
+        });
+    }
+
+    const btnFavoritar = document.querySelector('button:has(.bi-heart)');
+    if (btnFavoritar) {
+        btnFavoritar.addEventListener('click', function() {
+            this.classList.toggle('btn-outline-danger');
+            this.classList.toggle('btn-danger');
+
+            const icon = this.querySelector('i');
+            icon.classList.toggle('bi-heart');
+            icon.classList.toggle('bi-heart-fill');
+
+            const isFavorited = this.classList.contains('btn-danger');
+            alert(isFavorited ? 'Produto adicionado aos favoritos!' : 'Produto removido dos favoritos!');
+        });
+    }
+});
+</script>
+
+{% endblock %}
