@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+{% block conteudo %}
+
+<!-- CSS do Lightbox2 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css">
+
+<div class="row">
+    <!-- Coluna das Fotos -->
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-body">
+                <!-- Foto principal grande -->
+                <div class="mb-3 d-flex justify-content-center">
+                    <a id="link-foto-principal" href="{{ fotos[0] }}" data-lightbox="produto-gallery"
+                        data-title="{{ produto.nome }} - Foto Principal">
+                        <img id="foto-principal" src="{{ fotos[0] }}" class="img-fluid"
+                            style="width: 50vh; height: 50vh; object-fit: cover; cursor: pointer; border-radius: 8px;"
+                            alt="{{ produto.nome }} - Foto Principal">
+                    </a>
+                </div>
+
+                <!-- Linha divisória -->
+                <hr class="my-3">
+
+                <!-- Links ocultos para galeria do Lightbox -->
+                {% if fotos|length > 0 and fotos[0] != '/static/img/placeholder.png' %}
+                {% for foto in fotos %}
+                {% if loop.index > 1 %}
+                <a href="{{ foto }}" data-lightbox="produto-gallery" data-title="{{ produto.nome }} - Foto {{ loop.index }}" style="display: none;"></a>
+                {% endif %}
+                {% endfor %}
+
+                <!-- Thumbnails de todas as fotos (incluindo a principal) -->
+                <div class="d-flex gap-2">
+                    {% for foto in fotos %}
+                    <img src="{{ foto }}" class="thumbnail-foto"
+                        style="width: 7vh; height: 7vh; object-fit: cover; cursor: pointer; border-radius: 4px; border: 2px solid {% if loop.index == 1 %}#007bff{% else %}transparent{% endif %};"
+                        alt="{{ produto.nome }} - Foto {{ loop.index }}" data-foto="{{ foto }}"
+                        data-title="{{ produto.nome }} - Foto {{ loop.index }}"
+                        onclick="trocarFotoPrincipal(this, {{ loop.index }})">
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Coluna das Informações -->
+    <div class="col-md-7">
+        <div class="card h-100">
+            <div class="card-body pb-0">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h1 class="card-title">{{ produto.nome }}</h1>
+                    <span class="badge bg-secondary">{{ produto.categoria_nome }}</span>
+                </div>
+
+                <div class="mb-4">
+                    <h3 class="text-success">R$ {{ "%.2f"|format(produto.preco) }}</h3>
+                </div>
+
+                <div class="mb-4">
+                    <h5>Descrição</h5>
+                    <p class="card-text">{{ produto.descricao }}</p>
+                </div>
+
+                <div class="mb-4">
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Categoria:</strong><br>
+                            <span class="text-muted">{{ produto.categoria_nome }}</span>
+                        </div>
+                        <div class="col-6">
+                            <strong>Disponibilidade:</strong><br>
+                            {% if produto.quantidade > 0 %}
+                            <span class="text-success">
+                                <i class="bi-check-circle"></i>
+                                {{ produto.quantidade }} em estoque
+                            </span>
+                            {% else %}
+                            <span class="text-danger">
+                                <i class="bi-x-circle"></i>
+                                Fora de estoque
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Área de Ações -->
+                <div class="border-top pt-4">
+                    {% if produto.quantidade > 0 %}
+                    <div class="row align-items-end mb-3">
+                        <div class="col-md-3">
+                            <label for="quantidade" class="form-label">Quantidade:</label>
+                            <input type="number" class="form-control" id="quantidade" value="1" min="1"
+                                max="{{ produto.quantidade }}">
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-success btn-lg w-100" type="button">
+                                <i class="bi-cart-plus"></i> Adicionar ao Carrinho
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-danger btn-lg w-100" type="button">
+                                <i class="bi-heart"></i> Favoritar
+                            </button>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="d-grid">
+                        <button class="btn btn-secondary btn-lg" type="button" disabled>
+                            <i class="bi-x-circle"></i> Produto Indisponível
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Linha separadora -->
+                <hr class="my-4">
+
+                <!-- Informações Adicionais -->
+                <div class="row">
+                    <div class="col-12">
+                        <h6 class="mb-2">Informações de Compra</h6>
+
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <small class="text-muted">
+                                    <i class="bi-shield-check text-success me-2"></i>
+                                    <strong>Garantia:</strong> 12 meses
+                                </small>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">
+                                    <i class="bi-truck text-primary me-2"></i>
+                                    <strong>Entrega:</strong> Frete grátis +R$99
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <small class="text-muted">
+                                    <i class="bi-credit-card text-warning me-2"></i>
+                                    <strong>Pagamento:</strong> Cartão, PIX
+                                </small>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">
+                                    <i class="bi-arrow-left-right text-info me-2"></i>
+                                    <strong>Troca:</strong> 7 dias
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-light border py-1 px-2 mt-2">
+                            <small class="text-muted">
+                                <i class="bi-info-circle me-1"></i>
+                                <strong>Dúvidas?</strong> Entre em contato conosco pelo WhatsApp
+                                <a href="#" class="text-decoration-none">(11) 99999-9999</a>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript do Lightbox2 com jQuery incluído -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox-plus-jquery.min.js"></script>
+
+<script>
+    // Configurações do Lightbox usando jQuery
+    $(document).ready(function() {
+        lightbox.option({
+            'resizeDuration': 200,
+            'wrapAround': true,
+            'albumLabel': "Imagem %1 de %2",
+            'disableScrolling': true
+        });
+    });
+
+    // Função para trocar foto principal
+    function trocarFotoPrincipal(thumbnail, index) {
+        const fotoPrincipal = document.getElementById('foto-principal');
+        const linkFotoPrincipal = document.getElementById('link-foto-principal');
+        const novaFoto = thumbnail.getAttribute('data-foto');
+        const novoTitle = thumbnail.getAttribute('data-title');
+
+        // Atualizar foto principal
+        fotoPrincipal.src = novaFoto;
+        fotoPrincipal.alt = novoTitle;
+        linkFotoPrincipal.href = novaFoto;
+        linkFotoPrincipal.setAttribute('data-title', novoTitle);
+
+        // Remover borda ativa de todas as thumbnails
+        document.querySelectorAll('.thumbnail-foto').forEach(function (thumb) {
+            thumb.style.border = '2px solid transparent';
+        });
+
+        // Adicionar borda ativa à thumbnail clicada
+        thumbnail.style.border = '2px solid #007bff';
+    }
+
+    // Funcionalidade do carrinho (placeholder)
+    document.addEventListener('DOMContentLoaded', function () {
+        const btnCarrinho = document.querySelector('button:has(.bi-cart-plus)');
+        if (btnCarrinho) {
+            btnCarrinho.addEventListener('click', function () {
+                const quantidade = document.getElementById('quantidade').value;
+                alert(`Produto adicionado ao carrinho!\nQuantidade: ${quantidade}`);
+            });
+        }
+
+        const btnFavoritar = document.querySelector('button:has(.bi-heart)');
+        if (btnFavoritar) {
+            btnFavoritar.addEventListener('click', function () {
+                this.classList.toggle('btn-outline-danger');
+                this.classList.toggle('btn-danger');
+
+                const icon = this.querySelector('i');
+                icon.classList.toggle('bi-heart');
+                icon.classList.toggle('bi-heart-fill');
+
+                const isFavorited = this.classList.contains('btn-danger');
+                alert(isFavorited ? 'Produto adicionado aos favoritos!' : 'Produto removido dos favoritos!');
+            });
+        }
+
+        // Hover effect para thumbnails
+        document.querySelectorAll('.thumbnail-foto').forEach(function (thumb) {
+            thumb.addEventListener('mouseenter', function () {
+                if (this.style.border !== '2px solid rgb(0, 123, 255)') {
+                    this.style.border = '2px solid #6c757d';
+                }
+            });
+
+            thumb.addEventListener('mouseleave', function () {
+                if (this.style.border !== '2px solid rgb(0, 123, 255)') {
+                    this.style.border = '2px solid transparent';
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock %}
