@@ -3,3 +3,9 @@ __pycache__
 *.pyc
 *.pyo
 *.pyd
+
+# Arquivos de banco de dados SQLite
+*.db
+*.sqlite
+*.sqlite3
+dados.db
