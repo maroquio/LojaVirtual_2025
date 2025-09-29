@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Form, Request, status
 from fastapi.responses import RedirectResponse
 
+from dtos.categoria_dto import AlterarCategoriaDTO, CriarCategoriaDTO
 from model.categoria_model import Categoria
 from repo import categoria_repo
 from util.template_util import criar_templates
@@ -29,8 +30,11 @@ async def get_cadastrar(request: Request, usuario_logado: dict = None):
 
 @router.post("/cadastrar")
 @requer_autenticacao(["admin"])
-async def post_cadastrar(request: Request, nome: str = Form(...), usuario_logado: dict = None):
-    categoria = Categoria(id=0, nome=nome)
+async def post_cadastrar(
+    request: Request, 
+    categoria_dto: CriarCategoriaDTO, 
+    usuario_logado: dict = None):
+    categoria = Categoria(id=0, nome=categoria_dto.nome)
     categoria_id = categoria_repo.inserir(categoria)
     if categoria_id:
         response = RedirectResponse("/admin/categorias", status.HTTP_303_SEE_OTHER)
@@ -55,8 +59,11 @@ async def get_alterar(request: Request, id: int, usuario_logado: dict = None):
 
 @router.post("/alterar")
 @requer_autenticacao(["admin"])
-async def post_alterar(request: Request, id: int = Form(...), nome: str = Form(...), usuario_logado: dict = None):
-    categoria = Categoria(id=id, nome=nome)
+async def post_alterar(
+    request: Request, 
+    categoria_dto: AlterarCategoriaDTO, 
+    usuario_logado: dict = None):
+    categoria = Categoria(id=categoria_dto.id, nome=categoria_dto.nome)
     if categoria_repo.atualizar(categoria):
         response = RedirectResponse(
             "/admin/categorias", status_code=status.HTTP_303_SEE_OTHER
