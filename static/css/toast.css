@@ -1,0 +1,165 @@
+/**
+ * Estilos para Sistema de Notificações Toast
+ * Inspirado no sistema de flash messages do projeto CaseBem
+ */
+
+/* Container dos toasts */
+#toast-container {
+    z-index: 9999;
+    max-width: 400px;
+}
+
+/* Estilos base para todos os toasts */
+.toast {
+    min-width: 300px;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    margin-bottom: 0.5rem;
+}
+
+/* Toast de Sucesso */
+.toast-success {
+    background-color: #d1e7dd;
+    border-left: 4px solid #0f5132;
+}
+
+.toast-success .toast-header {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    border-bottom: 1px solid #badbcc;
+}
+
+.toast-success .toast-body {
+    background-color: #d1e7dd;
+    color: #0a3622;
+}
+
+.toast-success .bi-check-circle-fill {
+    color: #0f5132;
+}
+
+/* Toast de Erro */
+.toast-error {
+    background-color: #f8d7da;
+    border-left: 4px solid #842029;
+}
+
+.toast-error .toast-header {
+    background-color: #f8d7da;
+    color: #842029;
+    border-bottom: 1px solid #f5c2c7;
+}
+
+.toast-error .toast-body {
+    background-color: #f8d7da;
+    color: #58151c;
+}
+
+.toast-error .bi-x-circle-fill {
+    color: #842029;
+}
+
+/* Toast de Aviso */
+.toast-warning {
+    background-color: #fff3cd;
+    border-left: 4px solid #997404;
+}
+
+.toast-warning .toast-header {
+    background-color: #fff3cd;
+    color: #997404;
+    border-bottom: 1px solid #ffecb5;
+}
+
+.toast-warning .toast-body {
+    background-color: #fff3cd;
+    color: #664d03;
+}
+
+.toast-warning .bi-exclamation-triangle-fill {
+    color: #997404;
+}
+
+/* Toast de Informação */
+.toast-info {
+    background-color: #cfe2ff;
+    border-left: 4px solid #084298;
+}
+
+.toast-info .toast-header {
+    background-color: #cfe2ff;
+    color: #084298;
+    border-bottom: 1px solid #b6d4fe;
+}
+
+.toast-info .toast-body {
+    background-color: #cfe2ff;
+    color: #052c65;
+}
+
+.toast-info .bi-info-circle-fill {
+    color: #084298;
+}
+
+/* Botão de fechar */
+.toast .btn-close {
+    filter: brightness(0.8);
+}
+
+/* Animações */
+.toast.showing {
+    animation: slideInRight 0.3s ease-out;
+}
+
+.toast.hide {
+    animation: slideOutRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Responsividade */
+@media (max-width: 576px) {
+    #toast-container {
+        max-width: 100%;
+        width: 100%;
+        padding: 0.5rem !important;
+    }
+
+    .toast {
+        min-width: unset;
+        width: 100%;
+    }
+}
+
+/* Estilo para listas dentro de toasts (usado em erros de validação) */
+.toast-body ul {
+    margin-bottom: 0;
+    padding-left: 1.5rem;
+}
+
+.toast-body ul li {
+    margin-bottom: 0.25rem;
+}
+
+.toast-body ul li:last-child {
+    margin-bottom: 0;
+}

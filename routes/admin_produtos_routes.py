@@ -3,6 +3,7 @@ from fastapi.responses import RedirectResponse
 import os
 from typing import Optional
 
+from dtos.produto_dto import CriarProdutoDTO, AlterarProdutoDTO, ExcluirProdutoDTO, ReordenarFotosDTO
 from model.produto_model import Produto
 from repo import produto_repo, categoria_repo
 from util.template_util import criar_templates
@@ -58,21 +59,17 @@ async def get_cadastrar(request: Request, usuario_logado: dict = None):
 @requer_autenticacao(["admin"])
 async def post_cadastrar(
     request: Request,
-    nome: str = Form(...),
-    descricao: str = Form(...),
-    preco: float = Form(...),
-    quantidade: int = Form(...),
-    categoria_id: int = Form(...),
+    produto_dto: CriarProdutoDTO,
     foto: Optional[UploadFile] = File(None),
     usuario_logado: dict = None
 ):
     produto = Produto(
         id=0,
-        nome=nome,
-        descricao=descricao,
-        preco=preco,
-        quantidade=quantidade,
-        categoria_id=categoria_id,
+        nome=produto_dto.nome,
+        descricao=produto_dto.descricao,
+        preco=produto_dto.preco,
+        quantidade=produto_dto.quantidade,
+        categoria_id=produto_dto.categoria_id,
     )
     produto_id = produto_repo.inserir(produto)
     if produto_id:
@@ -120,22 +117,17 @@ async def get_alterar(request: Request, id: int, usuario_logado: dict = None):
 @requer_autenticacao(["admin"])
 async def post_alterar(
     request: Request,
-    id: int = Form(...),
-    nome: str = Form(...),
-    descricao: str = Form(...),
-    preco: float = Form(...),
-    quantidade: int = Form(...),
-    categoria_id: int = Form(...),
+    produto_dto: AlterarProdutoDTO,
     foto: Optional[UploadFile] = File(None),
     usuario_logado: dict = None
 ):
     produto = Produto(
-        id=id,
-        nome=nome,
-        descricao=descricao,
-        preco=preco,
-        quantidade=quantidade,
-        categoria_id=categoria_id,
+        id=produto_dto.id,
+        nome=produto_dto.nome,
+        descricao=produto_dto.descricao,
+        preco=produto_dto.preco,
+        quantidade=produto_dto.quantidade,
+        categoria_id=produto_dto.categoria_id,
     )
     if produto_repo.alterar(produto):
         # Salvar nova foto se foi enviada
@@ -175,11 +167,11 @@ async def get_excluir(request: Request, id: int, usuario_logado: dict = None):
 
 @router.post("/excluir")
 @requer_autenticacao(["admin"])
-async def post_excluir(request: Request, id: int = Form(...), usuario_logado: dict = None):
-    if produto_repo.excluir_por_id(id):
+async def post_excluir(request: Request, produto_dto: ExcluirProdutoDTO, usuario_logado: dict = None):
+    if produto_repo.excluir_por_id(produto_dto.id):
         response = RedirectResponse("/admin/produtos", status.HTTP_303_SEE_OTHER)
         return response
-    produto = produto_repo.obter_por_id(id)
+    produto = produto_repo.obter_por_id(produto_dto.id)
     return templates.TemplateResponse(
         "excluir.html",
         {
@@ -259,7 +251,7 @@ async def post_galeria_excluir(
 async def post_galeria_reordenar(
     request: Request,
     id: int,
-    nova_ordem: str = Form(...),
+    reordenar_dto: ReordenarFotosDTO,
     usuario_logado: dict = None
 ):
     produto = produto_repo.obter_por_id(id)
@@ -268,7 +260,7 @@ async def post_galeria_reordenar(
 
     try:
         # Converter string de números separados por vírgula em lista de inteiros
-        ordem_lista = [int(x.strip()) for x in nova_ordem.split(",")]
+        ordem_lista = [int(x.strip()) for x in reordenar_dto.nova_ordem.split(",")]
         reordenar_fotos(id, ordem_lista)
     except Exception as e:
         print(f"Erro ao reordenar fotos: {e}")

@@ -3,6 +3,7 @@ from fastapi import APIRouter, Form, Request, status, UploadFile, File
 from fastapi.responses import RedirectResponse
 from typing import Optional
 
+from dtos.perfil_dto import AtualizarPerfilDTO, AlterarSenhaDTO
 from model.usuario_model import Usuario
 from model.cliente_model import Cliente
 from repo import usuario_repo, cliente_repo
@@ -51,16 +52,13 @@ async def get_perfil(request: Request, usuario_logado: dict = None):
 @requer_autenticacao()
 async def post_perfil(
     request: Request,
-    nome: str = Form(...),
-    email: str = Form(...),
-    cpf: str = Form(None),
-    telefone: str = Form(None),
+    perfil_dto: AtualizarPerfilDTO,
     usuario_logado: dict = None
 ):
     usuario = usuario_repo.obter_por_id(usuario_logado['id'])
-    
+
     # Verificar se o email já está em uso por outro usuário
-    usuario_existente = usuario_repo.obter_por_email(email)
+    usuario_existente = usuario_repo.obter_por_email(perfil_dto.email)
     if usuario_existente and usuario_existente.id != usuario.id:
         cliente_dados = None
         if usuario.perfil == 'cliente':
@@ -89,19 +87,19 @@ async def post_perfil(
         )
     
     # Atualizar dados do usuário
-    usuario.nome = nome
-    usuario.email = email
+    usuario.nome = perfil_dto.nome
+    usuario.email = perfil_dto.email
     usuario_repo.alterar(usuario)
-    
+
     # Se for cliente, atualizar dados adicionais
-    if usuario.perfil == 'cliente' and cpf and telefone:
+    if usuario.perfil == 'cliente' and perfil_dto.cpf and perfil_dto.telefone:
         try:
             from util.db_util import get_connection
             with get_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute(
                     "UPDATE cliente SET cpf=?, telefone=? WHERE id=?",
-                    (cpf, telefone, usuario.id)
+                    (perfil_dto.cpf, perfil_dto.telefone, usuario.id)
                 )
                 conn.commit()
         except:
@@ -111,8 +109,8 @@ async def post_perfil(
     from util.auth_decorator import criar_sessao
     usuario_dict = {
         "id": usuario.id,
-        "nome": nome,
-        "email": email,
+        "nome": perfil_dto.nome,
+        "email": perfil_dto.email,
         "perfil": usuario.perfil,
         "foto": usuario.foto
     }
@@ -134,15 +132,13 @@ async def get_alterar_senha(request: Request, usuario_logado: dict = None):
 @requer_autenticacao()
 async def post_alterar_senha(
     request: Request,
-    senha_atual: str = Form(...),
-    senha_nova: str = Form(...),
-    confirmar_senha: str = Form(...),
+    alterar_senha_dto: AlterarSenhaDTO,
     usuario_logado: dict = None
 ):
     usuario = usuario_repo.obter_por_id(usuario_logado['id'])
-    
+
     # Verificar senha atual
-    if not verificar_senha(senha_atual, usuario.senha):
+    if not verificar_senha(alterar_senha_dto.senha_atual, usuario.senha):
         return templates.TemplateResponse(
             "alterar_senha.html",
             {
@@ -150,19 +146,11 @@ async def post_alterar_senha(
                 "erro": "Senha atual incorreta"
             }
         )
-    
-    # Verificar se as novas senhas coincidem
-    if senha_nova != confirmar_senha:
-        return templates.TemplateResponse(
-            "alterar_senha.html",
-            {
-                "request": request,
-                "erro": "As novas senhas não coincidem"
-            }
-        )
-    
+
+    # Validações já feitas pelo DTO (senhas novas coincidem)
+
     # Validar força da nova senha
-    senha_valida, msg_erro = validar_forca_senha(senha_nova)
+    senha_valida, msg_erro = validar_forca_senha(alterar_senha_dto.senha_nova)
     if not senha_valida:
         return templates.TemplateResponse(
             "alterar_senha.html",
@@ -171,9 +159,9 @@ async def post_alterar_senha(
                 "erro": msg_erro
             }
         )
-    
+
     # Atualizar senha
-    senha_hash = criar_hash_senha(senha_nova)
+    senha_hash = criar_hash_senha(alterar_senha_dto.senha_nova)
     usuario_repo.atualizar_senha(usuario.id, senha_hash)
     
     return templates.TemplateResponse(

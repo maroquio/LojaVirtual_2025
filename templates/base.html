@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/static/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/toast.css">
     <title>Loja Virtual</title>
 </head>
 
@@ -87,10 +88,19 @@
         {% block conteudo %}
         {% endblock %}
     </main>
+
+    <!-- Dados dos toasts injetados pelo servidor -->
+    {% set toasts = get_toasts(request) %}
+    {% if toasts %}
+    <script id="server-toasts-data" type="application/json">
+        {{ toasts | tojson | safe }}
+    </script>
+    {% endif %}
     <footer class="text-bg-dark p-3 text-center mt-auto">
         <p class="m-0">Copyright &copy; 2025 Loja Virtual</p>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/toast.js"></script>
 </body>
 
 </html>

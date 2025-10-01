@@ -2,6 +2,7 @@ from fastapi import APIRouter, Form, Request, status
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 
+from dtos.auth_dto import LoginDTO, CadastroPublicoDTO, EsqueciSenhaDTO, RedefinirSenhaDTO
 from model.usuario_model import Usuario
 from model.cliente_model import Cliente
 from repo import usuario_repo, cliente_repo
@@ -28,20 +29,19 @@ async def get_login(request: Request, redirect: str = None):
 @router.post("/login")
 async def post_login(
     request: Request,
-    email: str = Form(...),
-    senha: str = Form(...),
+    login_dto: LoginDTO,
     redirect: str = Form(None)
 ):
     # Buscar usuário pelo email
-    usuario = usuario_repo.obter_por_email(email)
-    
-    if not usuario or not verificar_senha(senha, usuario.senha):
+    usuario = usuario_repo.obter_por_email(login_dto.email)
+
+    if not usuario or not verificar_senha(login_dto.senha, usuario.senha):
         return templates.TemplateResponse(
             "login.html",
             {
                 "request": request,
                 "erro": "Email ou senha inválidos",
-                "email": email,
+                "email": login_dto.email,
                 "redirect": redirect
             }
         )
@@ -79,52 +79,35 @@ async def get_cadastro(request: Request):
 @router.post("/cadastro")
 async def post_cadastro(
     request: Request,
-    nome: str = Form(...),
-    email: str = Form(...),
-    cpf: str = Form(...),
-    telefone: str = Form(...),
-    senha: str = Form(...),
-    confirmar_senha: str = Form(...)
+    cadastro_dto: CadastroPublicoDTO
 ):
-    # Validações
-    if senha != confirmar_senha:
-        return templates.TemplateResponse(
-            "cadastro.html",
-            {
-                "request": request,
-                "erro": "As senhas não coincidem",
-                "nome": nome,
-                "email": email,
-                "cpf": cpf,
-                "telefone": telefone
-            }
-        )
-    
+    # Validações já feitas pelo DTO (incluindo coincidência de senhas)
+
     # Validar força da senha
-    senha_valida, msg_erro = validar_forca_senha(senha)
+    senha_valida, msg_erro = validar_forca_senha(cadastro_dto.senha)
     if not senha_valida:
         return templates.TemplateResponse(
             "cadastro.html",
             {
                 "request": request,
                 "erro": msg_erro,
-                "nome": nome,
-                "email": email,
-                "cpf": cpf,
-                "telefone": telefone
+                "nome": cadastro_dto.nome,
+                "email": cadastro_dto.email,
+                "cpf": cadastro_dto.cpf,
+                "telefone": cadastro_dto.telefone
             }
         )
-    
+
     # Verificar se email já existe
-    if usuario_repo.obter_por_email(email):
+    if usuario_repo.obter_por_email(cadastro_dto.email):
         return templates.TemplateResponse(
             "cadastro.html",
             {
                 "request": request,
                 "erro": "Este email já está cadastrado",
-                "nome": nome,
-                "cpf": cpf,
-                "telefone": telefone
+                "nome": cadastro_dto.nome,
+                "cpf": cadastro_dto.cpf,
+                "telefone": cadastro_dto.telefone
             }
         )
     
@@ -132,9 +115,9 @@ async def post_cadastro(
         # Criar usuário com senha hash
         usuario = Usuario(
             id=0,
-            nome=nome,
-            email=email,
-            senha=criar_hash_senha(senha),
+            nome=cadastro_dto.nome,
+            email=cadastro_dto.email,
+            senha=criar_hash_senha(cadastro_dto.senha),
             perfil='cliente'
         )
         
@@ -149,8 +132,8 @@ async def post_cadastro(
             # Inserir dados do cliente
             cliente = Cliente(
                 id=usuario_id,
-                cpf=cpf,
-                telefone=telefone
+                cpf=cadastro_dto.cpf,
+                telefone=cadastro_dto.telefone
             )
             cursor.execute(
                 "INSERT INTO cliente (id, cpf, telefone) VALUES (?, ?, ?)",
@@ -162,8 +145,8 @@ async def post_cadastro(
         # Fazer login automático após cadastro
         usuario_dict = {
             "id": usuario_id,
-            "nome": nome,
-            "email": email,
+            "nome": cadastro_dto.nome,
+            "email": cadastro_dto.email,
             "perfil": 'cliente',
             "foto": None
         }
@@ -177,10 +160,10 @@ async def post_cadastro(
             {
                 "request": request,
                 "erro": f"Erro ao criar cadastro. Tente novamente. {e}",
-                "nome": nome,
-                "email": email,
-                "cpf": cpf,
-                "telefone": telefone
+                "nome": cadastro_dto.nome,
+                "email": cadastro_dto.email,
+                "cpf": cadastro_dto.cpf,
+                "telefone": cadastro_dto.telefone
             }
         )
 
@@ -193,9 +176,9 @@ async def get_esqueci_senha(request: Request):
 @router.post("/esqueci-senha")
 async def post_esqueci_senha(
     request: Request,
-    email: str = Form(...)
+    esqueci_dto: EsqueciSenhaDTO
 ):
-    usuario = usuario_repo.obter_por_email(email)
+    usuario = usuario_repo.obter_por_email(esqueci_dto.email)
     
     # Sempre mostrar mensagem de sucesso por segurança (não revelar emails válidos)
     mensagem_sucesso = "Se o email estiver cadastrado, você receberá instruções para redefinir sua senha."
@@ -204,7 +187,7 @@ async def post_esqueci_senha(
         # Gerar token e salvar no banco
         token = gerar_token_redefinicao()
         data_expiracao = obter_data_expiracao_token(24)  # 24 horas
-        usuario_repo.atualizar_token(email, token, data_expiracao)
+        usuario_repo.atualizar_token(esqueci_dto.email, token, data_expiracao)
         
         # TODO: Enviar email com o link de redefinição
         # Por enquanto, vamos apenas mostrar o link (em produção, remover isso)
@@ -254,11 +237,10 @@ async def get_redefinir_senha(request: Request, token: str):
 async def post_redefinir_senha(
     request: Request,
     token: str,
-    senha: str = Form(...),
-    confirmar_senha: str = Form(...)
+    redefinir_dto: RedefinirSenhaDTO
 ):
     usuario = usuario_repo.obter_por_token(token)
-    
+
     if not usuario:
         return templates.TemplateResponse(
             "redefinir_senha.html",
@@ -267,20 +249,11 @@ async def post_redefinir_senha(
                 "erro": "Link inválido ou expirado"
             }
         )
-    
-    # Validações
-    if senha != confirmar_senha:
-        return templates.TemplateResponse(
-            "redefinir_senha.html",
-            {
-                "request": request,
-                "token": token,
-                "erro": "As senhas não coincidem"
-            }
-        )
-    
+
+    # Validações já feitas pelo DTO (senhas coincidem)
+
     # Validar força da senha
-    senha_valida, msg_erro = validar_forca_senha(senha)
+    senha_valida, msg_erro = validar_forca_senha(redefinir_dto.senha)
     if not senha_valida:
         return templates.TemplateResponse(
             "redefinir_senha.html",
@@ -290,9 +263,9 @@ async def post_redefinir_senha(
                 "erro": msg_erro
             }
         )
-    
+
     # Atualizar senha e limpar token
-    senha_hash = criar_hash_senha(senha)
+    senha_hash = criar_hash_senha(redefinir_dto.senha)
     usuario_repo.atualizar_senha(usuario.id, senha_hash)
     usuario_repo.limpar_token(usuario.id)
     

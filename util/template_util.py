@@ -1,6 +1,7 @@
 from typing import List, Optional, Union
 from jinja2 import FileSystemLoader
 from fastapi.templating import Jinja2Templates
+from starlette.requests import Request
 
 
 def criar_templates(diretorio_especifico: Optional[Union[str, List[str]]] = None) -> Jinja2Templates:
@@ -48,5 +49,16 @@ def criar_templates(diretorio_especifico: Optional[Union[str, List[str]]] = None
     # Configurar o loader com múltiplos diretórios
     # O FileSystemLoader tentará encontrar templates em ordem nos diretórios listados
     templates.env.loader = FileSystemLoader(diretorios)
-    
+
+    # Adicionar context processor para injetar toasts
+    templates.env.globals['get_toasts'] = _get_toasts_for_template
+
     return templates
+
+
+def _get_toasts_for_template(request: Request):
+    """
+    Context processor para injetar toasts no contexto do template
+    """
+    from util.toast_messages import get_toasts
+    return get_toasts(request)

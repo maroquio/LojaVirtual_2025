@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Form, Request, status
 from fastapi.responses import RedirectResponse
 
+from dtos.forma_pagamento_dto import CriarFormaPagamentoDTO, AlterarFormaPagamentoDTO, ExcluirFormaPagamentoDTO
 from model.forma_pagamento_model import FormaPagamento
 from repo import forma_pagamento_repo
 from util.template_util import criar_templates
@@ -30,8 +31,8 @@ async def get_cadastrar(request: Request, usuario_logado: dict = None):
 
 @router.post("/cadastrar")
 @requer_autenticacao(["admin"])
-async def post_cadastrar(request: Request, nome: str = Form(...), desconto: float = Form(...), usuario_logado: dict = None):
-    forma = FormaPagamento(id=0, nome=nome, desconto=desconto)
+async def post_cadastrar(request: Request, forma_dto: CriarFormaPagamentoDTO, usuario_logado: dict = None):
+    forma = FormaPagamento(id=0, nome=forma_dto.nome, desconto=forma_dto.desconto)
     forma_id = forma_pagamento_repo.inserir(forma)
     if forma_id:
         response = RedirectResponse("/admin/formas", status.HTTP_303_SEE_OTHER)
@@ -56,8 +57,8 @@ async def get_alterar(request: Request, id: int, usuario_logado: dict = None):
 
 @router.post("/alterar")
 @requer_autenticacao(["admin"])
-async def post_alterar(request: Request, id: int = Form(...), nome: str = Form(...), desconto: float = Form(...), usuario_logado: dict = None):
-    forma = FormaPagamento(id=id, nome=nome, desconto=desconto)
+async def post_alterar(request: Request, forma_dto: AlterarFormaPagamentoDTO, usuario_logado: dict = None):
+    forma = FormaPagamento(id=forma_dto.id, nome=forma_dto.nome, desconto=forma_dto.desconto)
     if forma_pagamento_repo.atualizar(forma):
         response = RedirectResponse(
             "/admin/formas", status_code=status.HTTP_303_SEE_OTHER
@@ -83,11 +84,11 @@ async def get_excluir(request: Request, id: int, usuario_logado: dict = None):
 
 @router.post("/excluir")
 @requer_autenticacao(["admin"])
-async def post_excluir(request: Request, id: int = Form(...), usuario_logado: dict = None):
-    if forma_pagamento_repo.excluir_por_id(id):
+async def post_excluir(request: Request, forma_dto: ExcluirFormaPagamentoDTO, usuario_logado: dict = None):
+    if forma_pagamento_repo.excluir_por_id(forma_dto.id):
         response = RedirectResponse("/admin/formas", status.HTTP_303_SEE_OTHER)
         return response
-    forma = forma_pagamento_repo.obter_por_id(id)
+    forma = forma_pagamento_repo.obter_por_id(forma_dto.id)
     return templates.TemplateResponse(
         "excluir.html",
         {"request": request, "forma": forma, "mensagem": "Erro ao excluir forma de pagamento."},
