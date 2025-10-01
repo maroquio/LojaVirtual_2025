@@ -6,8 +6,18 @@
         <hr>
         <form action="/admin/categorias/cadastrar" method="post">
             <div class="form-floating mb-3">
-                <input type="text" class="form-control" id="nome" name="nome" placeholder="Nome da Categoria" required>
+                <input 
+                    type="text" 
+                    class="form-control {% if erro and 'nome' in erro.lower() %}is-invalid{% endif %}" 
+                    id="nome" 
+                    name="nome" 
+                    placeholder="Nome da Categoria" 
+                    required 
+                    value="{{ dados.nome if dados else '' }}">
                 <label for="nome">Nome da Categoria</label>
+                {% if erro and 'nome' in erro.lower() %}
+                <div class="invalid-feedback">{{ erro }}</div>
+                {% endif %}
             </div>
             <button type="submit" class="btn btn-primary me-2">Cadastrar Categoria</button>
             <a href="/admin/categorias" class="btn btn-secondary">Cancelar Cadastro</a>
