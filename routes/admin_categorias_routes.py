@@ -54,9 +54,12 @@ async def post_cadastrar(
         # Extrair mensagens de erro do Pydantic
         erros = []
         for erro in e.errors():
-            campo = erro['loc'][0] if erro['loc'] else 'campo'
+            # Pegar apenas a mensagem customizada, removendo prefixos do Pydantic
             mensagem = erro['msg']
-            erros.append(f"{campo.capitalize()}: {mensagem}")
+            # Se a mensagem começa com "Value error, ", remove esse prefixo
+            if mensagem.startswith("Value error, "):
+                mensagem = mensagem.replace("Value error, ", "")
+            erros.append(mensagem)
         erro_msg = " | ".join(erros)
         # logger.warning(f"Erro de validação no cadastro: {erro_msg}")
         # Retornar template com dados preservados e erro

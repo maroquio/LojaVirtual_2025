@@ -15,10 +15,10 @@
                     required 
                     value="{{ dados.nome if dados else '' }}">
                 <label for="nome">Nome da Categoria</label>
+                {% if erro and 'nome' in erro.lower() %}
+                <div class="invalid-feedback">{{ erro }}</div>
+                {% endif %}
             </div>
-            {% if erro and 'nome' in erro.lower() %}
-            <div class="invalid-feedback">{{ erro }}</div>
-            {% endif %}
             <button type="submit" class="btn btn-primary me-2">Cadastrar Categoria</button>
             <a href="/admin/categorias" class="btn btn-secondary">Cancelar Cadastro</a>
         </form>
