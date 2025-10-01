@@ -9,7 +9,7 @@ class CriarCategoriaDTO(BaseDTO):
     
     @field_validator("nome")
     def validar_nome(cls, valor):
-        validar_texto_obrigatorio(valor, "Nome da Categoria")
+        validar_texto_obrigatorio(valor, "Nome da Categoria", 8, 32)
         return valor
     
 
