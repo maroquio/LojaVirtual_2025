@@ -23,7 +23,7 @@
                                         autofocus>
                                     <label for="nome">Nome Completo</label>
                                     {% if erros and "NOME" in erros.keys() %}
-                                    <div class="alert alert-danger" role="alert">
+                                    <div class="invalid-feedback">
                                         {{ erros['NOME'] }}
                                     </div>
                                     {% endif %}
@@ -39,7 +39,7 @@
                                         title="Formato: 000.000.000-00" required>
                                     <label for="cpf">CPF</label>
                                     {% if erros and "CPF" in erros.keys() %}
-                                    <div class="alert alert-danger" role="alert">
+                                    <div class="invalid-feedback">
                                         {{ erros['CPF'] }}
                                     </div>
                                     {% endif %}
@@ -53,7 +53,7 @@
                                         title="Formato: (00) 0000-0000 ou (00) 00000-0000" required>
                                     <label for="telefone">Telefone</label>
                                     {% if erros and "TELEFONE" in erros.keys() %}
-                                    <div class="alert alert-danger" role="alert">
+                                    <div class="invalid-feedback">
                                         {{ erros['TELEFONE'] }}
                                     </div>
                                     {% endif %}
@@ -66,7 +66,7 @@
                                 value="{{ dados['email'] if dados and 'email' in dados.keys() }}" required>
                             <label for="email">E-mail</label>
                             {% if erros and "EMAIL" in erros.keys() %}
-                            <div class="alert alert-danger" role="alert">
+                            <div class="invalid-feedback">
                                 {{ erros['EMAIL'] }}
                             </div>
                             {% endif %}
@@ -79,7 +79,7 @@
                                         placeholder="Senha" minlength="6" required>
                                     <label for="senha">Senha</label>
                                     {% if erros and "SENHA" in erros.keys() %}
-                                    <div class="alert alert-danger" role="alert">
+                                    <div class="invalid-feedback">
                                         {{ erros['SENHA'] }}
                                     </div>
                                     {% endif %}
@@ -91,7 +91,7 @@
                                         name="confirmar_senha" placeholder="Confirmar Senha" minlength="6" required>
                                     <label for="confirmar_senha">Confirmar Senha</label>
                                     {% if erros and "CONFIRMAR_SENHA" in erros.keys() %}
-                                    <div class="alert alert-danger" role="alert">
+                                    <div class="invalid-feedback">
                                         {{ erros['CONFIRMAR_SENHA'] }}
                                     </div>
                                     {% endif %}
