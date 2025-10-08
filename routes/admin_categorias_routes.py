@@ -71,6 +71,7 @@ async def post_cadastrar(
         })
     except Exception as e:
         # logger.error(f"Erro ao processar cadastro: {e}")
+        informar_erro(request, "Erro ao processar cadastro. Tente novamente.")
         return templates.TemplateResponse("cadastrar.html", {
             "request": request,
             "erro": "Erro ao processar cadastro. Tente novamente.",
