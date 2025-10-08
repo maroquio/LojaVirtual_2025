@@ -19,15 +19,22 @@
                         {% endif %}
                         
                         <div class="form-floating mb-3">
-                            <input type="email" class="form-control" id="email" name="email" 
+                            <input type="email" class="form-control {% if erro and 'email' in erro.lower() %}is-invalid{% endif %}" id="email" name="email" 
+                            value="{{ dados.email if dados else '' }}"
                                    placeholder="E-mail" value="{{ email if email }}" required autofocus>
                             <label for="email">E-mail</label>
+                            {% if erro and 'email' in erro.lower() %}
+                            <div class="invalid-feedback">{{ erro }}</div>
+                            {% endif %}
                         </div>
                         
                         <div class="form-floating mb-3">
-                            <input type="password" class="form-control" id="senha" name="senha" 
+                            <input type="password" class="form-control {% if erro and 'senha' in erro.lower() %}is-invalid{% endif %}" id="senha" name="senha" 
                                    placeholder="Senha" required>
                             <label for="senha">Senha</label>
+                            {% if erro and 'senha' in erro.lower() %}
+                            <div class="invalid-feedback">{{ erro }}</div>
+                            {% endif %}
                         </div>
                         
                         <div class="mb-3">
