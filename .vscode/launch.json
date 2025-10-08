@@ -15,7 +15,6 @@
                 "--reload"
             ],
             "jinja": true,
-            "justMyCode": true,
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
             }

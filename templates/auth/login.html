@@ -10,7 +10,13 @@
                         {% if redirect %}
                         <input type="hidden" name="redirect" value="{{ redirect }}">
                         {% endif %}
-                        
+
+                        {% if erros and "GERAL" in erros.keys() %}
+                        <div class="alert alert-danger">
+                            {{ erros['GERAL'] }}
+                        </div>
+                        {% endif %}
+
                         <div class="form-floating mb-3">
                             <input type="email" class="form-control {% if erros and 'EMAIL' in erros.keys() %}is-invalid{% endif %}" id="email" name="email" 
                             value="{{ dados.email if dados else '' }}"

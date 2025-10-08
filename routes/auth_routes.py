@@ -3,6 +3,7 @@ from fastapi.responses import RedirectResponse
 from pydantic import ValidationError
 
 from dtos.login_dto import LoginDTO
+from dtos.usuario_dto import CadastroUsuarioDTO
 from model.usuario_model import Usuario
 from model.cliente_model import Cliente
 from repo import usuario_repo
@@ -33,6 +34,8 @@ async def post_login(
     senha: str = Form(),
     redirect: str = Form(None)
 ):
+    # Seria ideal implementar um rate limiter aqui para evitar brute force
+    
     dados_formulario = {
         "email": email
     }
@@ -48,7 +51,7 @@ async def post_login(
                 "login.html",
                 {
                     "request": request,
-                    "erro": "E-mail ou senha inválidos",
+                    "erros": {"GERAL": "Credenciais inválidas. Tente novamente."},
                     "email": email,
                     "redirect": redirect
                 }
@@ -90,7 +93,7 @@ async def post_login(
 
         return templates.TemplateResponse("login.html", {
             "request": request,
-            "erro": "Erro ao processar cadastro. Tente novamente.",
+            "erros": {"GERAL": "Erro ao processar login. Tente novamente."},
             "dados": dados_formulario
         })
 
@@ -162,7 +165,14 @@ async def post_cadastro(
         )
     
     try:
-        usuario_dto = 
+        usuario_dto = CadastroUsuarioDTO(
+            nome=nome,
+            email=email,
+            cpf=cpf,
+            telefone=telefone,
+            senha=senha,
+            confirmar_senha=confirmar_senha
+        )
 
         # Criar usuário com senha hash
         usuario = Usuario(
@@ -206,18 +216,31 @@ async def post_cadastro(
         
         return RedirectResponse("/perfil", status.HTTP_303_SEE_OTHER)
         
+    except ValidationError as e:
+        # Extrair mensagens de erro do Pydantic
+        erros = dict()
+        for erro in e.errors():
+            campo = erro['loc'][0] if erro['loc'] else 'campo'
+            mensagem = erro['msg']
+            erros[campo.upper()] = mensagem.replace('Value error, ', '')
+
+        #logger.warning(f"Erro de validação no cadastro: {erro_msg}")
+
+        # Retornar template com dados preservados e erro
+        return templates.TemplateResponse("login.html", {
+            "request": request,
+            "erros": erros,
+            "dados": dados_formulario
+        })
+
     except Exception as e:
-        return templates.TemplateResponse(
-            "cadastro.html",
-            {
-                "request": request,
-                "erro": f"Erro ao criar cadastro. Tente novamente. {e}",
-                "nome": nome,
-                "email": email,
-                "cpf": cpf,
-                "telefone": telefone
-            }
-        )
+        # logger.error(f"Erro ao processar cadastro: {e}")
+
+        return templates.TemplateResponse("login.html", {
+            "request": request,
+            "erros": {"GERAL": "Erro ao processar cadastro. Tente novamente."},
+            "dados": dados_formulario
+        })
 
 
 @router.get("/esqueci-senha")
