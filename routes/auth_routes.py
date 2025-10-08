@@ -120,17 +120,21 @@ async def post_cadastro(
     senha: str = Form(...),
     confirmar_senha: str = Form(...)
 ):
+    dados_formulario = {
+        "nome": nome,
+        "email": email,
+        "cpf": cpf,
+        "telefone": telefone
+    }
+
     # Validações
     if senha != confirmar_senha:
         return templates.TemplateResponse(
             "cadastro.html",
             {
                 "request": request,
-                "erro": "As senhas não coincidem",
-                "nome": nome,
-                "email": email,
-                "cpf": cpf,
-                "telefone": telefone
+                "dados": dados_formulario,
+                "erros": {"SENHA": "As senhas não coincidem", "CONFIRMAR_SENHA": "As senhas não coincidem"}
             }
         )
     
@@ -141,11 +145,8 @@ async def post_cadastro(
             "cadastro.html",
             {
                 "request": request,
-                "erro": msg_erro,
-                "nome": nome,
-                "email": email,
-                "cpf": cpf,
-                "telefone": telefone
+                "dados": dados_formulario,
+                "erros": {"SENHA": msg_erro}
             }
         )
     
@@ -155,14 +156,14 @@ async def post_cadastro(
             "cadastro.html",
             {
                 "request": request,
-                "erro": "Este email já está cadastrado",
-                "nome": nome,
-                "cpf": cpf,
-                "telefone": telefone
+                "dados": dados_formulario,
+                "erros": {"EMAIL": "E-mail já cadastrado"}
             }
         )
     
     try:
+        usuario_dto = 
+
         # Criar usuário com senha hash
         usuario = Usuario(
             id=0,
