@@ -6,7 +6,7 @@
             <div class="card shadow">
                 <div class="card-body p-5">
                     <h2 class="text-center mb-4">Criar Conta</h2>
-
+                    
                     {% if erros and "GERAL" in erros %}
                     <div class="alert alert-danger" role="alert">
                         {{ erros['GERAL'] }}
@@ -35,26 +35,41 @@
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
                                     <input type="text" class="form-control" id="cpf" name="cpf" placeholder="CPF"
-                                        value="{{ cpf if cpf }}" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}"
+                                        value="{{ dados['cpf'] if dados and 'cpf' in dados.keys() }}" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}"
                                         title="Formato: 000.000.000-00" required>
                                     <label for="cpf">CPF</label>
+                                    {% if erros and "CPF" in erros.keys() %}
+                                    <div class="alert alert-danger" role="alert">
+                                        {{ erros['CPF'] }}
+                                    </div>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
                                     <input type="tel" class="form-control" id="telefone" name="telefone"
-                                        placeholder="Telefone" value="{{ telefone if telefone }}"
+                                        placeholder="Telefone" value="{{ dados['telefone'] if dados and 'telefone' in dados.keys() }}"
                                         pattern="\(\d{2}\) \d{4,5}-\d{4}"
                                         title="Formato: (00) 0000-0000 ou (00) 00000-0000" required>
                                     <label for="telefone">Telefone</label>
+                                    {% if erros and "TELEFONE" in erros.keys() %}
+                                    <div class="alert alert-danger" role="alert">
+                                        {{ erros['TELEFONE'] }}
+                                    </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-floating mb-3">
                             <input type="email" class="form-control" id="email" name="email" placeholder="E-mail"
-                                value="{{ email if email }}" required>
+                                value="{{ dados['email'] if dados and 'email' in dados.keys() }}" required>
                             <label for="email">E-mail</label>
+                            {% if erros and "EMAIL" in erros.keys() %}
+                            <div class="alert alert-danger" role="alert">
+                                {{ erros['EMAIL'] }}
+                            </div>
+                            {% endif %}
                         </div>
 
                         <div class="row">
@@ -63,7 +78,11 @@
                                     <input type="password" class="form-control" id="senha" name="senha"
                                         placeholder="Senha" minlength="6" required>
                                     <label for="senha">Senha</label>
-                                    <div class="form-text">Mínimo 6 caracteres</div>
+                                    {% if erros and "SENHA" in erros.keys() %}
+                                    <div class="alert alert-danger" role="alert">
+                                        {{ erros['SENHA'] }}
+                                    </div>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -71,6 +90,11 @@
                                     <input type="password" class="form-control" id="confirmar_senha"
                                         name="confirmar_senha" placeholder="Confirmar Senha" minlength="6" required>
                                     <label for="confirmar_senha">Confirmar Senha</label>
+                                    {% if erros and "CONFIRMAR_SENHA" in erros.keys() %}
+                                    <div class="alert alert-danger" role="alert">
+                                        {{ erros['CONFIRMAR_SENHA'] }}
+                                    </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
