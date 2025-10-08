@@ -44,3 +44,13 @@ class CadastroUsuarioDTO(BaseModel):
         if len(senha) < 6:
             raise ValueError('Senha deve ter pelo menos 6 caracteres.')
         return senha
+    
+    @field_validator('confirmar_senha')
+    @classmethod
+    def validate_confirmar_senha(cls, confirmar_senha, values):
+        senha = values.get('senha')
+        if not confirmar_senha:
+            raise ValueError('Confirmação de senha é obrigatória.')
+        if senha and confirmar_senha != senha:
+            raise ValueError('Senhas não coincidem.')
+        return confirmar_senha
