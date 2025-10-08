@@ -28,7 +28,9 @@
                                    placeholder="Senha" required>
                             <label for="senha">Senha</label>
                             {% if erros and 'SENHA' in erros.keys() %}
-                            <div class="invalid-feedback">{{ erros['SENHA'] }}</div>
+                            <div class="invalid-feedback">
+                                {{ erros['SENHA'] }}
+                            </div>
                             {% endif %}
                         </div>
                         
