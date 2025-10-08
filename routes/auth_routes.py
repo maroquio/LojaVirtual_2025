@@ -70,20 +70,19 @@ async def post_login(
     
     except ValidationError as e:
         # Extrair mensagens de erro do Pydantic
-        erros = []
+        erros = dict()
         for erro in e.errors():
             campo = erro['loc'][0] if erro['loc'] else 'campo'
             mensagem = erro['msg']
-            erros.append(f"{campo.capitalize()}: {mensagem}")
+            erros[campo.upper()] = mensagem.replace('Value error, ', '')
 
-        erro_msg = " | ".join(erros)
         #logger.warning(f"Erro de validação no cadastro: {erro_msg}")
 
         # Retornar template com dados preservados e erro
         return templates.TemplateResponse("login.html", {
             "request": request,
-            "erro": erro_msg,
-            "dados": dados_formulario  # Preservar dados digitados
+            "erros": erros,
+            "dados": dados_formulario
         })
 
     except Exception as e:
