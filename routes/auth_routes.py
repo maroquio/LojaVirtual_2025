@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import APIRouter, Form, Request, status
 from fastapi.responses import RedirectResponse
 from pydantic import ValidationError
@@ -15,7 +16,7 @@ templates = criar_templates("templates/auth")
 
 
 @router.get("/login")
-async def get_login(request: Request, redirect: str = None):
+async def get_login(request: Request, redirect: Optional[str] = None):
     # Se já está logado, redirecionar
     if esta_logado(request):
         return RedirectResponse("/", status.HTTP_303_SEE_OTHER)
@@ -128,6 +129,8 @@ async def post_cadastro(
 
             # Inserir usuário
             usuario_id = usuario_repo.inserir(usuario, cursor)
+            if not usuario_id:
+                raise Exception("Erro ao inserir usuário")
 
             # Inserir dados do cliente
             cliente = Cliente(

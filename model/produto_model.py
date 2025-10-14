@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass
@@ -9,6 +10,7 @@ class Produto:
     preco: float
     quantidade: int
     categoria_id: int
-    categoria_nome: str = None
+    categoria_nome: Optional[str] = None
+    foto_principal: Optional[str] = None
 
     

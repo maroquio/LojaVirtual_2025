@@ -10,4 +10,4 @@ __pycache__
 *.sqlite3
 dados.db
 
-.vscode/settings.json
+.mypy_cache/

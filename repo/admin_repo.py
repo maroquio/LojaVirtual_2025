@@ -14,22 +14,28 @@ def criar_tabela() -> bool:
 def inserir(admin: Admin) -> Optional[int]:
     with get_connection() as conn:
         cursor = conn.cursor()
-        usuario = Usuario(0, 
-            admin.nome, 
-            admin.email, 
+        assert admin.nome is not None, "Nome do admin é obrigatório"
+        assert admin.email is not None, "Email do admin é obrigatório"
+        assert admin.senha is not None, "Senha do admin é obrigatória"
+        usuario = Usuario(0,
+            admin.nome,
+            admin.email,
             admin.senha)
         id_usuario = usuario_repo.inserir(usuario, cursor)
         cursor.execute(INSERIR, (
             id_usuario,
             admin.master))
         return id_usuario
-    
+
 def alterar(admin: Admin) -> bool:
     with get_connection() as conn:
         cursor = conn.cursor()
-        usuario = Usuario(admin.id, 
-            admin.nome, 
-            admin.email, 
+        assert admin.nome is not None, "Nome do admin é obrigatório"
+        assert admin.email is not None, "Email do admin é obrigatório"
+        assert admin.senha is not None, "Senha do admin é obrigatória"
+        usuario = Usuario(admin.id,
+            admin.nome,
+            admin.email,
             admin.senha)
         usuario_repo.alterar(usuario, cursor)
         cursor.execute(ALTERAR, (

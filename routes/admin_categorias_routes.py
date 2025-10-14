@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import APIRouter, Form, Request, status
 from fastapi.responses import RedirectResponse
 from pydantic import ValidationError
@@ -17,7 +18,7 @@ templates = criar_templates("templates/admin/categorias")
 
 @router.get("/")
 @requer_autenticacao(["admin"])
-async def gets(request: Request, usuario_logado: dict = None):
+async def gets(request: Request, usuario_logado: Optional[dict] = None):
     categorias = categoria_repo.obter_todos()
     response = templates.TemplateResponse(
         "listar.html", {"request": request, "categorias": categorias}
@@ -27,7 +28,7 @@ async def gets(request: Request, usuario_logado: dict = None):
 
 @router.get("/cadastrar")
 @requer_autenticacao(["admin"])
-async def get_cadastrar(request: Request, usuario_logado: dict = None):
+async def get_cadastrar(request: Request, usuario_logado: Optional[dict] = None):
     response = templates.TemplateResponse("cadastrar.html", {"request": request})
     return response
 
@@ -37,7 +38,7 @@ async def get_cadastrar(request: Request, usuario_logado: dict = None):
 async def post_cadastrar(
     request: Request,
     categoria_dto: CriarCategoriaDTO,
-    usuario_logado: dict = None):
+    usuario_logado: Optional[dict] = None):
     categoria = Categoria(id=0, nome=categoria_dto.nome)
     categoria_id = categoria_repo.inserir(categoria)
     if categoria_id:
@@ -53,7 +54,7 @@ async def post_cadastrar(
 
 @router.get("/alterar/{id}")
 @requer_autenticacao(["admin"])
-async def get_alterar(request: Request, id: int, usuario_logado: dict = None):
+async def get_alterar(request: Request, id: int, usuario_logado: Optional[dict] = None):
     categoria = categoria_repo.obter_por_id(id)
     if categoria:
         response = templates.TemplateResponse(
@@ -68,7 +69,7 @@ async def get_alterar(request: Request, id: int, usuario_logado: dict = None):
 async def post_alterar(
     request: Request,
     categoria_dto: AlterarCategoriaDTO,
-    usuario_logado: dict = None):
+    usuario_logado: Optional[dict] = None):
     categoria = Categoria(id=categoria_dto.id, nome=categoria_dto.nome)
     if categoria_repo.atualizar(categoria):
         toast_sucesso(request, "Categoria alterada com sucesso!")
@@ -76,17 +77,17 @@ async def post_alterar(
             "/admin/categorias", status_code=status.HTTP_303_SEE_OTHER
         )
         return response
-    categoria = categoria_repo.obter_por_id(categoria_dto.id)
+    categoria_recuperada = categoria_repo.obter_por_id(categoria_dto.id)
     toast_erro(request, "Erro ao alterar categoria")
     return templates.TemplateResponse(
         "alterar.html",
-        {"request": request, "categoria": categoria},
+        {"request": request, "categoria": categoria_recuperada if categoria_recuperada else categoria},
     )
 
 
 @router.get("/excluir/{id}")
 @requer_autenticacao(["admin"])
-async def get_excluir(request: Request, id: int, usuario_logado: dict = None):
+async def get_excluir(request: Request, id: int, usuario_logado: Optional[dict] = None):
     categoria = categoria_repo.obter_por_id(id)
     if categoria:
         response = templates.TemplateResponse(
@@ -98,7 +99,7 @@ async def get_excluir(request: Request, id: int, usuario_logado: dict = None):
 
 @router.post("/excluir")
 @requer_autenticacao(["admin"])
-async def post_excluir(request: Request, id: int = Form(...), usuario_logado: dict = None):
+async def post_excluir(request: Request, id: int = Form(...), usuario_logado: Optional[dict] = None):
     if categoria_repo.excluir_por_id(id):
         toast_sucesso(request, "Categoria excluída com sucesso!")
         response = RedirectResponse("/admin/categorias", status.HTTP_303_SEE_OTHER)

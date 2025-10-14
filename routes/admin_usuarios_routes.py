@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import APIRouter, Form, Request, status
 from fastapi.responses import RedirectResponse
 
@@ -14,7 +15,7 @@ templates = criar_templates("templates/admin/usuarios")
 
 @router.get("/lista")
 @requer_autenticacao(["admin"])
-async def get_lista(request: Request, usuario_logado: dict = None):
+async def get_lista(request: Request, usuario_logado: Optional[dict] = None):
     usuarios_admin = usuario_repo.obter_todos_por_perfil("admin")
     return templates.TemplateResponse(
         "lista.html",
@@ -24,7 +25,7 @@ async def get_lista(request: Request, usuario_logado: dict = None):
 
 @router.get("/cadastro")
 @requer_autenticacao(["admin"])
-async def get_cadastro(request: Request, usuario_logado: dict = None):
+async def get_cadastro(request: Request, usuario_logado: Optional[dict] = None):
     return templates.TemplateResponse(
         "cadastro.html",
         {"request": request}
@@ -36,7 +37,7 @@ async def get_cadastro(request: Request, usuario_logado: dict = None):
 async def post_cadastro(
     request: Request,
     usuario_dto: CriarUsuarioDTO,
-    usuario_logado: dict = None
+    usuario_logado: Optional[dict] = None
 ):
     # Verificar se o email já existe
     usuario_existente = usuario_repo.obter_por_email(usuario_dto.email)
@@ -65,7 +66,7 @@ async def post_cadastro(
 
 @router.get("/alterar/{id:int}")
 @requer_autenticacao(["admin"])
-async def get_alterar(request: Request, id: int, usuario_logado: dict = None):
+async def get_alterar(request: Request, id: int, usuario_logado: Optional[dict] = None):
     usuario = usuario_repo.obter_por_id(id)
     if not usuario or usuario.perfil != "admin":
         return RedirectResponse(
@@ -85,7 +86,7 @@ async def post_alterar(
     request: Request,
     id: int,
     usuario_dto: AlterarUsuarioDTO,
-    usuario_logado: dict = None
+    usuario_logado: Optional[dict] = None
 ):
     usuario = usuario_repo.obter_por_id(id)
     if not usuario or usuario.perfil != "admin":
@@ -121,21 +122,25 @@ async def post_alterar(
 
 @router.get("/excluir/{id:int}")
 @requer_autenticacao(["admin"])
-async def get_excluir(request: Request, id: int, usuario_logado: dict = None):
+async def get_excluir(request: Request, id: int, usuario_logado: Optional[dict] = None):
+    # Verificar se usuário está logado
+    if not usuario_logado:
+        return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
+
     # Não permitir auto-exclusão
     if id == usuario_logado['id']:
         return RedirectResponse(
             "/admin/usuarios/lista?erro=auto_exclusao",
             status.HTTP_303_SEE_OTHER
         )
-    
+
     usuario = usuario_repo.obter_por_id(id)
     if not usuario or usuario.perfil != "admin":
         return RedirectResponse(
             "/admin/usuarios/lista",
             status.HTTP_303_SEE_OTHER
         )
-    
+
     return templates.TemplateResponse(
         "excluir.html",
         {"request": request, "usuario": usuario}
@@ -145,20 +150,24 @@ async def get_excluir(request: Request, id: int, usuario_logado: dict = None):
 @router.post("/excluir/{id:int}")
 @requer_autenticacao(["admin"])
 async def post_excluir(
-    request: Request, 
-    id: int, 
-    usuario_logado: dict = None):
+    request: Request,
+    id: int,
+    usuario_logado: Optional[dict] = None):
+    # Verificar se usuário está logado
+    if not usuario_logado:
+        return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
+
     # Não permitir auto-exclusão
     if id == usuario_logado['id']:
         return RedirectResponse(
             "/admin/usuarios/lista?erro=auto_exclusao",
             status.HTTP_303_SEE_OTHER
         )
-    
+
     usuario = usuario_repo.obter_por_id(id)
     if usuario and usuario.perfil == "admin":
-        usuario_repo.excluir(usuario)
-    
+        usuario_repo.excluir(id)
+
     return RedirectResponse(
         "/admin/usuarios/lista",
         status.HTTP_303_SEE_OTHER

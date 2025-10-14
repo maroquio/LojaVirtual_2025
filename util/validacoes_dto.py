@@ -290,7 +290,7 @@ def validar_enum_valor(valor: Any, enum_class, campo: str = "Campo") -> Any:
 
 class ValidadorWrapper:
     @staticmethod
-    def criar_validador(funcao_validacao, campo_nome: str = None, **kwargs):
+    def criar_validador(funcao_validacao, campo_nome: Optional[str] = None, **kwargs):
         def validador(valor):
             try:
                 if campo_nome:
@@ -302,7 +302,7 @@ class ValidadorWrapper:
         return validador
 
     @staticmethod
-    def criar_validador_opcional(funcao_validacao, campo_nome: str = None, **kwargs):
+    def criar_validador_opcional(funcao_validacao, campo_nome: Optional[str] = None, **kwargs):
         def validador(valor):
             if valor is None or (isinstance(valor, str) and not valor.strip()):
                 return None

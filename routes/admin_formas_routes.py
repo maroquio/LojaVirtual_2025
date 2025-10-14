@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import APIRouter, Form, Request, status
 from fastapi.responses import RedirectResponse
 
@@ -14,7 +15,7 @@ templates = criar_templates("templates/admin/formas")
 
 @router.get("/")
 @requer_autenticacao(["admin"])
-async def gets(request: Request, usuario_logado: dict = None):
+async def gets(request: Request, usuario_logado: Optional[dict] = None):
     formas = forma_pagamento_repo.obter_todas()
     response = templates.TemplateResponse(
         "listar.html", {"request": request, "formas": formas}
@@ -24,14 +25,14 @@ async def gets(request: Request, usuario_logado: dict = None):
 
 @router.get("/cadastrar")
 @requer_autenticacao(["admin"])
-async def get_cadastrar(request: Request, usuario_logado: dict = None):
+async def get_cadastrar(request: Request, usuario_logado: Optional[dict] = None):
     response = templates.TemplateResponse("cadastrar.html", {"request": request})
     return response
 
 
 @router.post("/cadastrar")
 @requer_autenticacao(["admin"])
-async def post_cadastrar(request: Request, forma_dto: CriarFormaPagamentoDTO, usuario_logado: dict = None):
+async def post_cadastrar(request: Request, forma_dto: CriarFormaPagamentoDTO, usuario_logado: Optional[dict] = None):
     forma = FormaPagamento(id=0, nome=forma_dto.nome, desconto=forma_dto.desconto)
     forma_id = forma_pagamento_repo.inserir(forma)
     if forma_id:
@@ -45,7 +46,7 @@ async def post_cadastrar(request: Request, forma_dto: CriarFormaPagamentoDTO, us
 
 @router.get("/alterar/{id}")
 @requer_autenticacao(["admin"])
-async def get_alterar(request: Request, id: int, usuario_logado: dict = None):
+async def get_alterar(request: Request, id: int, usuario_logado: Optional[dict] = None):
     forma = forma_pagamento_repo.obter_por_id(id)
     if forma:
         response = templates.TemplateResponse(
@@ -57,7 +58,7 @@ async def get_alterar(request: Request, id: int, usuario_logado: dict = None):
 
 @router.post("/alterar")
 @requer_autenticacao(["admin"])
-async def post_alterar(request: Request, forma_dto: AlterarFormaPagamentoDTO, usuario_logado: dict = None):
+async def post_alterar(request: Request, forma_dto: AlterarFormaPagamentoDTO, usuario_logado: Optional[dict] = None):
     forma = FormaPagamento(id=forma_dto.id, nome=forma_dto.nome, desconto=forma_dto.desconto)
     if forma_pagamento_repo.atualizar(forma):
         response = RedirectResponse(
@@ -72,7 +73,7 @@ async def post_alterar(request: Request, forma_dto: AlterarFormaPagamentoDTO, us
 
 @router.get("/excluir/{id}")
 @requer_autenticacao(["admin"])
-async def get_excluir(request: Request, id: int, usuario_logado: dict = None):
+async def get_excluir(request: Request, id: int, usuario_logado: Optional[dict] = None):
     forma = forma_pagamento_repo.obter_por_id(id)
     if forma:
         response = templates.TemplateResponse(
@@ -84,7 +85,7 @@ async def get_excluir(request: Request, id: int, usuario_logado: dict = None):
 
 @router.post("/excluir")
 @requer_autenticacao(["admin"])
-async def post_excluir(request: Request, forma_dto: ExcluirFormaPagamentoDTO, usuario_logado: dict = None):
+async def post_excluir(request: Request, forma_dto: ExcluirFormaPagamentoDTO, usuario_logado: Optional[dict] = None):
     if forma_pagamento_repo.excluir_por_id(forma_dto.id):
         response = RedirectResponse("/admin/formas", status.HTTP_303_SEE_OTHER)
         return response

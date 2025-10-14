@@ -34,7 +34,7 @@ def processar_imagem(arquivo, caminho_destino: str) -> bool:
     """
     try:
         # Abrir a imagem
-        img = Image.open(arquivo)
+        img: Image.Image = Image.open(arquivo)
 
         # Converter para RGB se necessário (para salvar como JPG)
         if img.mode != 'RGB':

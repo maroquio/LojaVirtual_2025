@@ -24,7 +24,8 @@ def tratar_erro_validacao(request: Request, erro: ValidationError) -> List[str]:
     erros = []
 
     for erro_item in erro.errors():
-        campo = erro_item['loc'][-1] if erro_item['loc'] else 'campo'
+        campo_raw = erro_item['loc'][-1] if erro_item['loc'] else 'campo'
+        campo = str(campo_raw)  # Converter para string
         tipo = erro_item['type']
         mensagem = erro_item['msg']
 

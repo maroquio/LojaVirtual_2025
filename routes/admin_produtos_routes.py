@@ -20,7 +20,7 @@ templates = criar_templates("templates/admin/produtos")
 
 @router.get("/")
 @requer_autenticacao(["admin"])
-async def gets(request: Request, usuario_logado: dict = None):
+async def gets(request: Request, usuario_logado: Optional[dict] = None):
     produtos = produto_repo.obter_todos()
 
     # Adicionar informação de foto para cada produto
@@ -35,7 +35,7 @@ async def gets(request: Request, usuario_logado: dict = None):
 
 @router.get("/detalhar/{id}")
 @requer_autenticacao(["admin"])
-async def get_detalhar(request: Request, id: int, usuario_logado: dict = None):
+async def get_detalhar(request: Request, id: int, usuario_logado: Optional[dict] = None):
     produto = produto_repo.obter_por_id(id)
     if produto:
         response = templates.TemplateResponse(
@@ -47,7 +47,7 @@ async def get_detalhar(request: Request, id: int, usuario_logado: dict = None):
 
 @router.get("/cadastrar")
 @requer_autenticacao(["admin"])
-async def get_cadastrar(request: Request, usuario_logado: dict = None):
+async def get_cadastrar(request: Request, usuario_logado: Optional[dict] = None):
     categorias = categoria_repo.obter_todos()
     response = templates.TemplateResponse(
         "cadastrar.html", {"request": request, "categorias": categorias}
@@ -61,7 +61,7 @@ async def post_cadastrar(
     request: Request,
     produto_dto: CriarProdutoDTO,
     foto: Optional[UploadFile] = File(None),
-    usuario_logado: dict = None
+    usuario_logado: Optional[dict] = None
 ):
     produto = Produto(
         id=0,
@@ -95,7 +95,7 @@ async def post_cadastrar(
 
 @router.get("/alterar/{id}")
 @requer_autenticacao(["admin"])
-async def get_alterar(request: Request, id: int, usuario_logado: dict = None):
+async def get_alterar(request: Request, id: int, usuario_logado: Optional[dict] = None):
     produto = produto_repo.obter_por_id(id)
     categorias = categoria_repo.obter_todos()
     if produto:
@@ -119,7 +119,7 @@ async def post_alterar(
     request: Request,
     produto_dto: AlterarProdutoDTO,
     foto: Optional[UploadFile] = File(None),
-    usuario_logado: dict = None
+    usuario_logado: Optional[dict] = None
 ):
     produto = Produto(
         id=produto_dto.id,
@@ -133,14 +133,14 @@ async def post_alterar(
         # Salvar nova foto se foi enviada
         if foto and foto.filename:
             try:
-                salvar_nova_foto(id, foto.file, como_principal=True)
+                salvar_nova_foto(produto_dto.id, foto.file, como_principal=True)
             except Exception as e:
                 print(f"Erro ao salvar foto: {e}")
 
         response = RedirectResponse("/admin/produtos", status.HTTP_303_SEE_OTHER)
         return response
     categorias = categoria_repo.obter_todos()
-    foto_principal = obter_foto_principal(id)
+    foto_principal = obter_foto_principal(produto_dto.id)
     return templates.TemplateResponse(
         "alterar.html",
         {
@@ -155,7 +155,7 @@ async def post_alterar(
 
 @router.get("/excluir/{id}")
 @requer_autenticacao(["admin"])
-async def get_excluir(request: Request, id: int, usuario_logado: dict = None):
+async def get_excluir(request: Request, id: int, usuario_logado: Optional[dict] = None):
     produto = produto_repo.obter_por_id(id)
     if produto:
         response = templates.TemplateResponse(
@@ -167,7 +167,7 @@ async def get_excluir(request: Request, id: int, usuario_logado: dict = None):
 
 @router.post("/excluir")
 @requer_autenticacao(["admin"])
-async def post_excluir(request: Request, produto_dto: ExcluirProdutoDTO, usuario_logado: dict = None):
+async def post_excluir(request: Request, produto_dto: ExcluirProdutoDTO, usuario_logado: Optional[dict] = None):
     if produto_repo.excluir_por_id(produto_dto.id):
         response = RedirectResponse("/admin/produtos", status.HTTP_303_SEE_OTHER)
         return response
@@ -184,7 +184,7 @@ async def post_excluir(request: Request, produto_dto: ExcluirProdutoDTO, usuario
 
 @router.get("/{id}/galeria")
 @requer_autenticacao(["admin"])
-async def get_galeria(request: Request, id: int, usuario_logado: dict = None):
+async def get_galeria(request: Request, id: int, usuario_logado: Optional[dict] = None):
     produto = produto_repo.obter_por_id(id)
     if not produto:
         return RedirectResponse("/admin/produtos", status.HTTP_303_SEE_OTHER)
@@ -207,7 +207,7 @@ async def post_galeria_upload(
     request: Request,
     id: int,
     fotos: list[UploadFile] = File(...),
-    usuario_logado: dict = None
+    usuario_logado: Optional[dict] = None
 ):
     produto = produto_repo.obter_por_id(id)
     if not produto:
@@ -232,7 +232,7 @@ async def post_galeria_excluir(
     request: Request,
     id: int,
     numero: int,
-    usuario_logado: dict = None
+    usuario_logado: Optional[dict] = None
 ):
     produto = produto_repo.obter_por_id(id)
     if not produto:
@@ -252,7 +252,7 @@ async def post_galeria_reordenar(
     request: Request,
     id: int,
     reordenar_dto: ReordenarFotosDTO,
-    usuario_logado: dict = None
+    usuario_logado: Optional[dict] = None
 ):
     produto = produto_repo.obter_por_id(id)
     if not produto:

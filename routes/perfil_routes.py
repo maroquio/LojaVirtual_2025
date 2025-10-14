@@ -17,10 +17,15 @@ templates = criar_templates("templates/perfil")
 
 @router.get("/perfil")
 @requer_autenticacao()
-async def get_perfil(request: Request, usuario_logado: dict = None):
+async def get_perfil(request: Request, usuario_logado: Optional[dict] = None):
+    if not usuario_logado:
+        return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
+
     # Buscar dados completos do usuário
     usuario = usuario_repo.obter_por_id(usuario_logado['id'])
-    
+    if not usuario:
+        return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
+
     # Se for cliente, buscar dados adicionais
     cliente_dados = None
     if usuario.perfil == 'cliente':
@@ -37,7 +42,7 @@ async def get_perfil(request: Request, usuario_logado: dict = None):
                     }
         except:
             pass
-    
+
     return templates.TemplateResponse(
         "dados.html",
         {
@@ -53,9 +58,14 @@ async def get_perfil(request: Request, usuario_logado: dict = None):
 async def post_perfil(
     request: Request,
     perfil_dto: AtualizarPerfilDTO,
-    usuario_logado: dict = None
+    usuario_logado: Optional[dict] = None
 ):
+    if not usuario_logado:
+        return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
+
     usuario = usuario_repo.obter_por_id(usuario_logado['id'])
+    if not usuario:
+        return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
 
     # Verificar se o email já está em uso por outro usuário
     usuario_existente = usuario_repo.obter_por_email(perfil_dto.email)
@@ -75,7 +85,7 @@ async def post_perfil(
                         }
             except:
                 pass
-        
+
         return templates.TemplateResponse(
             "dados.html",
             {
@@ -85,7 +95,7 @@ async def post_perfil(
                 "erro": "Este email já está em uso"
             }
         )
-    
+
     # Atualizar dados do usuário
     usuario.nome = perfil_dto.nome
     usuario.email = perfil_dto.email
@@ -104,7 +114,7 @@ async def post_perfil(
                 conn.commit()
         except:
             pass
-    
+
     # Atualizar sessão
     from util.auth_decorator import criar_sessao
     usuario_dict = {
@@ -115,13 +125,13 @@ async def post_perfil(
         "foto": usuario.foto
     }
     criar_sessao(request, usuario_dict)
-    
+
     return RedirectResponse("/perfil?sucesso=1", status.HTTP_303_SEE_OTHER)
 
 
 @router.get("/perfil/alterar-senha")
 @requer_autenticacao()
-async def get_alterar_senha(request: Request, usuario_logado: dict = None):
+async def get_alterar_senha(request: Request, usuario_logado: Optional[dict] = None):
     return templates.TemplateResponse(
         "alterar_senha.html",
         {"request": request}
@@ -133,9 +143,14 @@ async def get_alterar_senha(request: Request, usuario_logado: dict = None):
 async def post_alterar_senha(
     request: Request,
     alterar_senha_dto: AlterarSenhaDTO,
-    usuario_logado: dict = None
+    usuario_logado: Optional[dict] = None
 ):
+    if not usuario_logado:
+        return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
+
     usuario = usuario_repo.obter_por_id(usuario_logado['id'])
+    if not usuario:
+        return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
 
     # Verificar senha atual
     if not verificar_senha(alterar_senha_dto.senha_atual, usuario.senha):
@@ -163,7 +178,7 @@ async def post_alterar_senha(
     # Atualizar senha
     senha_hash = criar_hash_senha(alterar_senha_dto.senha_nova)
     usuario_repo.atualizar_senha(usuario.id, senha_hash)
-    
+
     return templates.TemplateResponse(
         "alterar_senha.html",
         {
@@ -178,39 +193,42 @@ async def post_alterar_senha(
 async def alterar_foto(
     request: Request,
     foto: UploadFile = File(...),
-    usuario_logado: dict = None
+    usuario_logado: Optional[dict] = None
 ):
+    if not usuario_logado:
+        return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
+
     # Validar tipo de arquivo
     tipos_permitidos = ["image/jpeg", "image/png", "image/jpg"]
     if foto.content_type not in tipos_permitidos:
         return RedirectResponse("/perfil?erro=tipo_invalido", status.HTTP_303_SEE_OTHER)
-    
+
     # Criar diretório de upload se não existir
     upload_dir = "static/uploads/usuarios"
     os.makedirs(upload_dir, exist_ok=True)
-    
+
     # Gerar nome único para o arquivo
     import secrets
-    extensao = foto.filename.split(".")[-1]
+    extensao = foto.filename.split(".")[-1] if foto.filename else "jpg"
     nome_arquivo = f"{usuario_logado['id']}_{secrets.token_hex(8)}.{extensao}"
     caminho_arquivo = os.path.join(upload_dir, nome_arquivo)
-    
+
     # Salvar arquivo
     try:
         conteudo = await foto.read()
         with open(caminho_arquivo, "wb") as f:
             f.write(conteudo)
-        
+
         # Atualizar caminho no banco
         caminho_relativo = f"/static/uploads/usuarios/{nome_arquivo}"
         usuario_repo.atualizar_foto(usuario_logado['id'], caminho_relativo)
-        
+
         # Atualizar sessão
         usuario_logado['foto'] = caminho_relativo
         from util.auth_decorator import criar_sessao
         criar_sessao(request, usuario_logado)
-        
+
     except Exception as e:
         return RedirectResponse("/perfil?erro=upload_falhou", status.HTTP_303_SEE_OTHER)
-    
+
     return RedirectResponse("/perfil?foto_sucesso=1", status.HTTP_303_SEE_OTHER)

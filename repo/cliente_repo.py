@@ -14,9 +14,12 @@ def criar_tabela() -> bool:
 def inserir(cliente: Cliente) -> Optional[int]:
     with get_connection() as conn:
         cursor = conn.cursor()
-        usuario = Usuario(0, 
-            cliente.nome, 
-            cliente.email, 
+        assert cliente.nome is not None, "Nome do cliente é obrigatório"
+        assert cliente.email is not None, "Email do cliente é obrigatório"
+        assert cliente.senha is not None, "Senha do cliente é obrigatória"
+        usuario = Usuario(0,
+            cliente.nome,
+            cliente.email,
             cliente.senha)
         id_usuario = usuario_repo.inserir(usuario, cursor)
         cursor.execute(INSERIR, (
@@ -24,13 +27,16 @@ def inserir(cliente: Cliente) -> Optional[int]:
             cliente.cpf,
             cliente.telefone))
         return id_usuario
-    
+
 def alterar(cliente: Cliente) -> bool:
     with get_connection() as conn:
         cursor = conn.cursor()
-        usuario = Usuario(cliente.id, 
-            cliente.nome, 
-            cliente.email, 
+        assert cliente.nome is not None, "Nome do cliente é obrigatório"
+        assert cliente.email is not None, "Email do cliente é obrigatório"
+        assert cliente.senha is not None, "Senha do cliente é obrigatória"
+        usuario = Usuario(cliente.id,
+            cliente.nome,
+            cliente.email,
             cliente.senha)
         usuario_repo.alterar(usuario, cursor)
         cursor.execute(ALTERAR, (
