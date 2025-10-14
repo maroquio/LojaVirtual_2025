@@ -13,7 +13,7 @@
 </head>
 
 <body class="d-flex flex-column min-vh-100">
-    <header class="text-bg-dark p-3">
+    <header class="text-bg-danger p-3">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
                 <h1>Loja Virtual</h1>
@@ -34,13 +34,13 @@
                         </ul>
                     </li>
                     {% endif %}
-                    
+
                     {% if request.session.get('usuario') %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown">
                             {% if request.session.get('usuario').foto %}
-                            <img src="{{ request.session.get('usuario').foto }}" 
-                                 class="rounded-circle" 
+                            <img src="{{ request.session.get('usuario').foto }}"
+                                 class="rounded-circle"
                                  style="width: 30px; height: 30px; object-fit: cover;">
                             {% else %}
                             <i class="bi-person-circle"></i>

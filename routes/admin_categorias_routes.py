@@ -5,6 +5,7 @@ from pydantic import ValidationError
 from dtos.categoria_dto import AlterarCategoriaDTO, CriarCategoriaDTO
 from model.categoria_model import Categoria
 from repo import categoria_repo
+from util.flash_messages import informar_erro, informar_sucesso
 from util.template_util import criar_templates
 from util.auth_decorator import requer_autenticacao
 from util.toast_messages import toast_sucesso, toast_erro

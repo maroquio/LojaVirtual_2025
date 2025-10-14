@@ -6,28 +6,38 @@
             <div class="card shadow">
                 <div class="card-body p-5">
                     <h2 class="text-center mb-4">Login</h2>
-                    
-                    {% if erro %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ erro }}
-                    </div>
-                    {% endif %}
-                    
                     <form method="post" action="/login">
                         {% if redirect %}
                         <input type="hidden" name="redirect" value="{{ redirect }}">
                         {% endif %}
-                        
+
+                        {% if erros and "GERAL" in erros.keys() %}
+                        <div class="alert alert-danger">
+                            {{ erros['GERAL'] }}
+                        </div>
+                        {% endif %}
+
                         <div class="form-floating mb-3">
-                            <input type="email" class="form-control" id="email" name="email" 
+                            <input type="email" class="form-control {% if erros and 'EMAIL' in erros.keys() %}is-invalid{% endif %}" id="email" name="email" 
+                            value="{{ dados.email if dados else '' }}"
                                    placeholder="E-mail" value="{{ email if email }}" required autofocus>
                             <label for="email">E-mail</label>
+                            {% if erros and 'EMAIL' in erros.keys() %}
+                            <div class="invalid-feedback">
+                                {{ erros['EMAIL'] }}
+                            </div>
+                            {% endif %}
                         </div>
                         
                         <div class="form-floating mb-3">
-                            <input type="password" class="form-control" id="senha" name="senha" 
+                            <input type="password" class="form-control {% if erros and 'SENHA' in erros.keys() %}is-invalid{% endif %}" id="senha" name="senha" 
                                    placeholder="Senha" required>
                             <label for="senha">Senha</label>
+                            {% if erros and 'SENHA' in erros.keys() %}
+                            <div class="invalid-feedback">
+                                {{ erros['SENHA'] }}
+                            </div>
+                            {% endif %}
                         </div>
                         
                         <div class="mb-3">
