@@ -1,12 +1,12 @@
-from typing import Optional
+from typing import Optional, Annotated
 from fastapi import APIRouter, Form, Request, status
 from fastapi.responses import RedirectResponse
-from pydantic import ValidationError
 
 from dtos.auth_dto import LoginDTO, CadastroPublicoDTO, EsqueciSenhaDTO, RedefinirSenhaDTO
 from model.usuario_model import Usuario
 from model.cliente_model import Cliente
 from repo import usuario_repo
+from util.email_service import email_service
 from util.security import criar_hash_senha, verificar_senha, gerar_token_redefinicao, obter_data_expiracao_token, validar_forca_senha
 from util.auth_decorator import criar_sessao, destruir_sessao, esta_logado
 from util.template_util import criar_templates
@@ -30,9 +30,24 @@ async def get_login(request: Request, redirect: Optional[str] = None):
 @router.post("/login")
 async def post_login(
     request: Request,
-    login_dto: LoginDTO,
+    email: Annotated[str, Form()],
+    senha: Annotated[str, Form()],
     redirect: str = Form(None)
 ):
+    # Validar dados com DTO
+    try:
+        login_dto = LoginDTO(email=email, senha=senha)
+    except Exception as e:
+        return templates.TemplateResponse(
+            "login.html",
+            {
+                "request": request,
+                "erro": str(e),
+                "email": email,
+                "redirect": redirect
+            }
+        )
+    
     # Buscar usuário pelo email
     usuario = usuario_repo.obter_por_email(login_dto.email)
 
@@ -80,8 +95,36 @@ async def get_cadastro(request: Request):
 @router.post("/cadastro")
 async def post_cadastro(
     request: Request,
-    cadastro_dto: CadastroPublicoDTO
+    nome: Annotated[str, Form()],
+    email: Annotated[str, Form()],
+    cpf: Annotated[str, Form()],
+    telefone: Annotated[str, Form()],
+    senha: Annotated[str, Form()],
+    confirmar_senha: Annotated[str, Form()]
 ):
+    # Validar dados com DTO
+    try:
+        cadastro_dto = CadastroPublicoDTO(
+            nome=nome,
+            email=email,
+            cpf=cpf,
+            telefone=telefone,
+            senha=senha,
+            confirmar_senha=confirmar_senha
+        )
+    except Exception as e:
+        return templates.TemplateResponse(
+            "cadastro.html",
+            {
+                "request": request,
+                "erro": str(e),
+                "nome": nome,
+                "email": email,
+                "cpf": cpf,
+                "telefone": telefone
+            }
+        )
+    
     # Validações já feitas pelo DTO (incluindo coincidência de senhas)
 
     # Validar força da senha
@@ -154,7 +197,10 @@ async def post_cadastro(
             "foto": None
         }
         criar_sessao(request, usuario_dict)
-
+        email_service.enviar_boas_vindas(
+            para_email=cadastro_dto.email,
+            para_nome=cadastro_dto.nome
+        )
         return RedirectResponse("/perfil", status.HTTP_303_SEE_OTHER)
 
     except Exception as e:
@@ -179,8 +225,20 @@ async def get_esqueci_senha(request: Request):
 @router.post("/esqueci-senha")
 async def post_esqueci_senha(
     request: Request,
-    esqueci_dto: EsqueciSenhaDTO
+    email: Annotated[str, Form()]
 ):
+    # Validar dados com DTO
+    try:
+        esqueci_dto = EsqueciSenhaDTO(email=email)
+    except Exception as e:
+        return templates.TemplateResponse(
+            "esqueci_senha.html",
+            {
+                "request": request,
+                "erro": str(e)
+            }
+        )
+    
     usuario = usuario_repo.obter_por_email(esqueci_dto.email)
 
     # Sempre mostrar mensagem de sucesso por segurança (não revelar emails válidos)
@@ -240,7 +298,8 @@ async def get_redefinir_senha(request: Request, token: str):
 async def post_redefinir_senha(
     request: Request,
     token: str,
-    redefinir_dto: RedefinirSenhaDTO
+    senha: Annotated[str, Form()],
+    confirmar_senha: Annotated[str, Form()]
 ):
     usuario = usuario_repo.obter_por_token(token)
 
@@ -253,6 +312,19 @@ async def post_redefinir_senha(
             }
         )
 
+    # Validar dados com DTO
+    try:
+        redefinir_dto = RedefinirSenhaDTO(senha=senha, confirmar_senha=confirmar_senha)
+    except Exception as e:
+        return templates.TemplateResponse(
+            "redefinir_senha.html",
+            {
+                "request": request,
+                "token": token,
+                "erro": str(e)
+            }
+        )
+    
     # Validações já feitas pelo DTO (senhas coincidem)
 
     # Validar força da senha

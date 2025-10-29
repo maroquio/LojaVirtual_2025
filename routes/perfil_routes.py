@@ -1,7 +1,7 @@
 import os
 from fastapi import APIRouter, Form, Request, status, UploadFile, File
 from fastapi.responses import RedirectResponse
-from typing import Optional
+from typing import Optional, Annotated
 
 from dtos.perfil_dto import AtualizarPerfilDTO, AlterarSenhaDTO
 from model.usuario_model import Usuario
@@ -57,7 +57,10 @@ async def get_perfil(request: Request, usuario_logado: Optional[dict] = None):
 @requer_autenticacao()
 async def post_perfil(
     request: Request,
-    perfil_dto: AtualizarPerfilDTO,
+    nome: Annotated[str, Form()],
+    email: Annotated[str, Form()],
+    cpf: Annotated[str, Form(None)],
+    telefone: Annotated[str, Form(None)],
     usuario_logado: Optional[dict] = None
 ):
     if not usuario_logado:
@@ -66,6 +69,41 @@ async def post_perfil(
     usuario = usuario_repo.obter_por_id(usuario_logado['id'])
     if not usuario:
         return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
+
+    # Validar dados com DTO
+    try:
+        perfil_dto = AtualizarPerfilDTO(
+            nome=nome,
+            email=email,
+            cpf=cpf,
+            telefone=telefone
+        )
+    except Exception as e:
+        cliente_dados = None
+        if usuario.perfil == 'cliente':
+            try:
+                from util.db_util import get_connection
+                with get_connection() as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT cpf, telefone FROM cliente WHERE id=?", (usuario.id,))
+                    row = cursor.fetchone()
+                    if row:
+                        cliente_dados = {
+                            'cpf': row['cpf'],
+                            'telefone': row['telefone']
+                        }
+            except:
+                pass
+
+        return templates.TemplateResponse(
+            "dados.html",
+            {
+                "request": request,
+                "usuario": usuario,
+                "cliente_dados": cliente_dados,
+                "erro": str(e)
+            }
+        )
 
     # Verificar se o email já está em uso por outro usuário
     usuario_existente = usuario_repo.obter_por_email(perfil_dto.email)
@@ -142,7 +180,9 @@ async def get_alterar_senha(request: Request, usuario_logado: Optional[dict] = N
 @requer_autenticacao()
 async def post_alterar_senha(
     request: Request,
-    alterar_senha_dto: AlterarSenhaDTO,
+    senha_atual: Annotated[str, Form()],
+    senha_nova: Annotated[str, Form()],
+    confirmar_senha_nova: Annotated[str, Form()],
     usuario_logado: Optional[dict] = None
 ):
     if not usuario_logado:
@@ -151,6 +191,22 @@ async def post_alterar_senha(
     usuario = usuario_repo.obter_por_id(usuario_logado['id'])
     if not usuario:
         return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
+
+    # Validar dados com DTO
+    try:
+        alterar_senha_dto = AlterarSenhaDTO(
+            senha_atual=senha_atual,
+            senha_nova=senha_nova,
+            confirmar_senha_nova=confirmar_senha_nova
+        )
+    except Exception as e:
+        return templates.TemplateResponse(
+            "alterar_senha.html",
+            {
+                "request": request,
+                "erro": str(e)
+            }
+        )
 
     # Verificar senha atual
     if not verificar_senha(alterar_senha_dto.senha_atual, usuario.senha):
